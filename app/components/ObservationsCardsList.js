@@ -1,6 +1,6 @@
 import ObservationsCards from "./ObservationsCards";
 
-export default function ObservationsCardsList({separation, openModal, oeuvres, citation }) {
+export default function ObservationsCardsList({ separation, openModal, oeuvres, citation }) {
   return (
     <div className="grid grid-cols-4 relative gap-8 z-10 bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
       <div className="md:col-start-2 col-span-4 md:col-span-2 text-stone-200 text-2xl md:text-4xl pt-8 md:pt-16 md:pb-48 pb-8 md:leading-9 ">
@@ -9,6 +9,11 @@ export default function ObservationsCardsList({separation, openModal, oeuvres, c
       <div className="col-span-1"></div>
       {oeuvres
         .filter((oeuvre) => !oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est false
+        .sort((a, b) => {
+          const dateA = new Date(a.Date); // Convertir la date de A en objet Date
+          const dateB = new Date(b.Date); // Convertir la date de B en objet Date
+          return dateB - dateA; // Tri décroissant (du plus récent au plus ancien)
+        })
         .map((oeuvre, index) => (
           <>
             <ObservationsCards
@@ -51,7 +56,7 @@ export default function ObservationsCardsList({separation, openModal, oeuvres, c
                 <div className="md:px-8 px-4 h-full flex justify-center">
                   <div className="text-white space-y-2 py-8">
                     <h2 className="text-3xl leading-7">
-                    {citation.Citation}
+                      {citation.Citation}
                     </h2>
                     <p className="text-end pr-8">{citation.Auteur}</p>
                   </div>
