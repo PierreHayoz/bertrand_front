@@ -1,23 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer utilities {
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  .clipPathBanner {
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+      clip-path: polygon(26% 6%, 80% 19%, 79% 89%, 19% 72%);
+
   }
+
+}
+html{
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans);
 }
 
 @layer utilities {
