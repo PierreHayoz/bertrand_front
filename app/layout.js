@@ -12,6 +12,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+
 export const metadata = {
   title: "Bertrand Kolly | Artiste peintre",
   description: "Site web d'exposition des oeuvres de Bertrand Kolly.",

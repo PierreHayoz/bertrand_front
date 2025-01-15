@@ -5,7 +5,7 @@ import StickyCards from "./StickyCards";
 
 export default function StickyCardsList({ openModal, oeuvres }) {
   return (
-    <div className="h-full relative z-10">
+    <div className="h-full relative z-10 pt-16">
       {oeuvres
         .filter((oeuvre) => oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est true
         .sort((a, b) => {

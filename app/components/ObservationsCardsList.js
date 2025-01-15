@@ -2,8 +2,8 @@ import ObservationsCards from "./ObservationsCards";
 
 export default function ObservationsCardsList({ separation, openModal, oeuvres, citation }) {
   return (
-    <div className="grid grid-cols-4 relative gap-8 z-10 bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
-      <div className="md:col-start-2 col-span-4 md:col-span-2 text-stone-200 text-2xl md:text-4xl pt-8 md:pt-16 md:pb-48 pb-8 md:leading-9 ">
+    <div className="grid grid-cols-4 relative gap-2 z-10 bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
+      <div className="md:col-start-2  col-span-4 md:col-span-2 px-4 md:px-0 text-stone-200 text-xl md:text-4xl pt-8 md:pt-16 md:pb-48 pb-16 md:leading-9 ">
         {separation.Text}
       </div>
       <div className="col-span-1"></div>
@@ -37,10 +37,10 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
               {index == 4 && (
                 <div className="md:px-8 px-4 h-full flex justify-center items-center">
                   <div className="text-white space-y-2">
-                    <h2 className="text-3xl leading-7 ">
+                    <h2 className="citation text-3xl leading-7 ">
                       {citation.Citation}
                     </h2>
-                    <p className="text-end pr-8">{citation.Auteur}</p>
+                    <p className=" text-end pr-8">{citation.Auteur}</p>
                   </div>
                 </div>
               )}
@@ -53,9 +53,9 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
               }
             >
               {index == 4 && (
-                <div className="md:px-8 px-4 h-full flex justify-center">
+                <div className="md:px-8 px-4 py-8 h-full flex justify-center">
                   <div className="text-white space-y-2 py-8">
-                    <h2 className="text-3xl leading-7">
+                    <h2 className="text-xl leading-6 citation">
                       {citation.Citation}
                     </h2>
                     <p className="text-end pr-8">{citation.Auteur}</p>

@@ -10,9 +10,12 @@
   }
 
 }
-html{
-}
 
+.citation{
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: 200;
+  font-style: italic;
+}
 body {
   font-family: var(--font-geist-sans);
 }
