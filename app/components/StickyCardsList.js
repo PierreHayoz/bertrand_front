@@ -21,7 +21,6 @@ export default function StickyCardsList({ openModal, oeuvres }) {
             src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
             title={oeuvre.Titre}
             date={new Date(oeuvre.date).getFullYear()}
-            medium={oeuvre.Medium}
             format={oeuvre.Format}
             alt={oeuvre.Titre}
           />

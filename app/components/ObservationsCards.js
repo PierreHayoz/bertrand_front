@@ -45,10 +45,11 @@ export default function ObservationsCards({
       <div className="flex justify-between pt-2">
         <div className="leading-4">
           <p className="font-medium text-stone-200">{title}</p>
+          <p className="text-stone-400 text-sm">{format}</p>
+
         </div>
         <div className="text-end leading-4">
           <p className="text-stone-200">{date}</p>
-          <p className="text-stone-400 text-sm">{format}</p>
         </div>
       </div>
     </motion.div>
