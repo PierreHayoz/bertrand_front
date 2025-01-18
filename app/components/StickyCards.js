@@ -6,7 +6,6 @@ export default function StickyCards({
   src,
   title,
   date,
-  medium,
   format,
   alt,
   id,
@@ -24,7 +23,7 @@ export default function StickyCards({
             <p className="text-stone-400 md:hidden block">{date}</p>
           </div>
           <p className="text-stone-400 text-sm">
-            {medium}, {format}
+            {format}
           </p>
           
         </div>

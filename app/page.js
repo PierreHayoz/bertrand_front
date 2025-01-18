@@ -42,7 +42,6 @@ export default async function Home() {
   );
   const separation = await resSeparation.json();
 
-  console.log(separation.data)
   return (
     <>
       <Content
