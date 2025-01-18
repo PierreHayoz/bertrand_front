@@ -29,7 +29,7 @@ export default function ObservationsCards({
           ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)"
           : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
       }} // Animation basée sur l'entrée dans la vue
-      transition={{ duration: 1, ease: [0.83, 0, 0.17, 1] }} // Durée de l'animation
+      transition={{ duration: 0.7, ease: [0.83, 0, 0.17, 1] }} // Durée de l'animation
       className="md:col-span-1 col-span-4"
     >
       <Image
