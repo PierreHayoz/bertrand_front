@@ -18,8 +18,18 @@ export default function Content({oeuvres, header, citation, footer, separation})
     setIsModalOpen(true);
   };
   useEffect(() => {
-    window.scrollTo(0, 0); // Revenir tout en haut de la page
-  }, []); 
+    const scrollToTop = () => {
+      // Fonction de fallback pour gérer différents types de scrolls
+      window.scrollTo(0, 0); // Essaye de scroller globalement
+      document.body.scrollTop = 0; // Pour certains navigateurs mobiles
+      document.documentElement.scrollTop = 0; // Si le conteneur principal est html
+    };
+  
+    scrollToTop();
+  
+    // Retenter après une petite pause pour les animations CSS (si nécessaire)
+    setTimeout(scrollToTop, 100);
+  }, []);
   const closeModal = () => setIsModalOpen(false);
   return (
     <>
