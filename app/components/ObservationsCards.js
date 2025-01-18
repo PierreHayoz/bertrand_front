@@ -33,6 +33,7 @@ export default function ObservationsCards({
       className="md:col-span-1 col-span-4"
     >
       <Image
+      placeholder="blur"
         src={src}
         width={1000}
         height={1000}

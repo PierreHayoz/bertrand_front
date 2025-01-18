@@ -40,6 +40,7 @@ export default function StickyCards({
             className="md:col-span-2 col-span-3 border border-stone-700 p-1 relative"
           >
             <Image
+            placeholder="blur"
               src={src}
               width={500}
               height={500}
