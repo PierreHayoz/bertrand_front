@@ -1,11 +1,12 @@
 import ObservationsCards from "./ObservationsCards";
+import Separation from "./Separation";
 
 export default function ObservationsCardsList({ separation, openModal, oeuvres, citation }) {
+
+  
   return (
     <div className="grid grid-cols-4 relative gap-2 z-10 bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
-      <div className="md:col-start-2 col-span-4 md:col-span-2 px-4 md:px-0 text-stone-200 text-xl md:text-4xl pt-8 md:pt-16 md:pb-48 pb-16 md:leading-9 ">
-        {separation.Text}
-      </div>
+      <Separation separation={separation}/>
       <div className="col-span-1"></div>
       {oeuvres
         .filter((oeuvre) => !oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est false
@@ -23,7 +24,6 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
               src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
               title={oeuvre.Titre}
               date={new Date(oeuvre.date).getFullYear()}// Affiche uniquement l'année
-              medium={oeuvre.Medium}
               format={oeuvre.Format}
               alt={oeuvre.Titre}
             />

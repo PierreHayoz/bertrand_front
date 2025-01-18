@@ -17,9 +17,13 @@ export default function Content({oeuvres, header, citation, footer, separation})
     setSelectedImage(src); // Mettre à jour l'image sélectionnée
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    window.scrollTo(0, 0); // Revenir tout en haut de la page
+  }, []); 
   const closeModal = () => setIsModalOpen(false);
   return (
     <>
+    
       <AnimatePresence>
         {isModalOpen && selectedImage && (
           <Modal

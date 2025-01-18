@@ -19,9 +19,7 @@ export default function ObservationsCards({
     threshold: 0.5, // Le seuil d'entrée dans le viewport, ici 50%
     margin: "0px 100px -50px 0px",
   });
-  useEffect(() => {
-    console.log("Element is in view: ", isInView);
-  }, [isInView]);
+
   return (
     <motion.div
       ref={ref}
