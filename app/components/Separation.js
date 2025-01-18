@@ -7,7 +7,7 @@ export default function Separation({ separation }) {
 
   // Utilise useInView pour détecter lorsque l'élément entre dans la vue
   const isInView = useInView(ref, {
-    once: false, // Le déclenchement se fait une seule fois
+    once: true, // Le déclenchement se fait une seule fois
     threshold: 0.5, // Le seuil d'entrée dans le viewport, ici 50%
     margin: "0px 100px -50px 0px",
   });
