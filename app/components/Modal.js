@@ -54,7 +54,7 @@ export default function Modal({ isModalOpen, closeModal, selectedImage }) {
           />
           <button
             onClick={closeModal}
-            className="absolute right-16 z-50 text-6xl top-0 text-white font-thin"
+            className="absolute right-4 md:right-16 z-50 text-6xl top-0 text-white font-thin"
           >
             &times; {/* Symbole pour fermer */}
           </button>
