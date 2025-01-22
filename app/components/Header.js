@@ -4,14 +4,12 @@ import { motion } from "framer-motion";
 
 export default function Header() {
   const [isEnd, setIsEnd] = useState(false);
-
+  const [test, setTest] = useState(null);
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
       const docHeight = document.documentElement.scrollHeight;
       const windowHeight = window.innerHeight;
-
-      // Vérifier si on est arrivé en bas de la page
       if (scrollY + windowHeight >= docHeight - 50) {
         setIsEnd(true);
       } else {
@@ -23,13 +21,16 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+
+
   const scrollToBottom = () => {
     window.scrollTo({
-      top: document.documentElement.scrollHeight,
+      top: document.documentElement.scrollHeight + 500,
       behavior: "smooth", // Pour un défilement fluide
     });
   };
-
+console.log(document.documentElement.scrollHeight)
+console.log(document.documentElement.scrollHeight + 500)
   const scrollToTop = () => {
     window.scrollTo({
       top: 0, // Défiler tout en haut de la page
@@ -39,15 +40,10 @@ export default function Header() {
 
   return (
     <motion.div
-      className="h-16 fixed w-full right-0 bg-stone-950 z-20 flex items-center"
-      animate={{
-        backgroundColor: isEnd ? "rgb(231 229 228)" : "rgb(12 10 9)", // Le rouge et le blanc
-        color: isEnd ? "rgb(12 10 9)" : "rgb(231 229 228)", // Le rouge et le blanc
-      }}
-      transition={{
-        duration: 0.4, // Durée de l'animation
-        ease: [0.5, 1, 0.89, 1], // Type d'animation
-      }}
+      initial={{ y: "100%" }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.4, delay: 2.8 }}
+      className="text-white py-4 z-40 fixed w-full bg-stone-950 top-0"
     >
       <div className="md:px-16 px-4 flex w-full justify-between items-center">
         <div

@@ -46,7 +46,6 @@ export default function Modal({ isModalOpen, closeModal, selectedImage }) {
           onClick={(e) => e.stopPropagation()} // Empêcher la fermeture si on clique sur l'image
         >
           <Image
-          placeholder="blur"
             src={selectedImage} // Utiliser l'URL de l'image sélectionnée
             width={1000}
             height={1000}

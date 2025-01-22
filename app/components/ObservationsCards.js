@@ -33,7 +33,6 @@ export default function ObservationsCards({
       className="md:col-span-1 col-span-4"
     >
       <Image
-      placeholder="blur"
         src={src}
         width={1000}
         height={1000}
@@ -41,7 +40,7 @@ export default function ObservationsCards({
         className="w-full cursor-pointer border-2 border-stone-700  transition-all duration-700"
         onClick={() => openModal(src)}
       />
-      <div className="flex justify-between pt-2">
+      <div className="flex justify-between">
         <div className="leading-4">
           <p className="font-medium text-stone-200">{title}</p>
           <p className="text-stone-400 text-sm">{format}</p>

@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 export default function StickyCards({
@@ -14,14 +13,8 @@ export default function StickyCards({
 
   return (
     <motion.div 
-    initial={{opacity: 0}}
-      animate={{opacity: 1}}
-      transition={{
-        duration: 1, // Durée de l'animation
-        ease: [0.5, 1, 0.89, 1],
-        delay:0.8 // Type d'animation
-      }}
-    className="sticky top-16 py-4 md:py-16 px-4 md:px-16 bg-stone-950 z-50">
+    className="sticky top-16 py-4 md:py-16 px-4 md:px-16 bg-stone-950 "
+    >
       <div className="md:flex relative ">
         <div className="md:w-1/2 ">
           <div className="w-full flex justify-between ">
@@ -40,7 +33,6 @@ export default function StickyCards({
             className="md:col-span-2 col-span-3 border border-stone-700 p-1 relative"
           >
             <Image
-            placeholder="blur"
               src={src}
               width={500}
               height={500}

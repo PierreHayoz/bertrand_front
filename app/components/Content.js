@@ -1,39 +1,97 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+
+import { useState, useEffect } from "react";
 import Hero from "./Hero";
-import Lenis from "lenis";
 import StickyCardsList from "./StickyCardsList";
 import ObservationsCardsList from "./ObservationsCardsList";
 import Modal from "./Modal";
 import Footer from "./Footer";
-import Intro from "./Intro";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Header from "./Header";
+import Timer from "./Timer";
 
-export default function Content({oeuvres, header, citation, footer, separation}) {
+export default function Content({
+  oeuvresUrl,
+  headerUrl,
+  citationUrl,
+  footerUrl,
+  separationUrl,
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null); // Ajouter l'état pour l'image sélectionnée
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [data, setData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFinishedTime, setIsFinishedTime] = useState(false);
+  const [loadingTimer, setIsLoadingTimer] = useState(0);
+
   const openModal = (src) => {
-    setSelectedImage(src); // Mettre à jour l'image sélectionnée
+    setSelectedImage(src);
     setIsModalOpen(true);
   };
-  useEffect(() => {
-    const scrollToTop = () => {
-      // Fonction de fallback pour gérer différents types de scrolls
-      window.scrollTo(0, 0); // Essaye de scroller globalement
-      document.body.scrollTop = 0; // Pour certains navigateurs mobiles
-      document.documentElement.scrollTop = 0; // Si le conteneur principal est html
-    };
-  
-    scrollToTop();
-  
-    // Retenter après une petite pause pour les animations CSS (si nécessaire)
-    setTimeout(scrollToTop, 100);
-  }, []);
+
   const closeModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    // Simuler la période minimale d'affichage de 4 secondes
+    const timer = setTimeout(() => {}, 3000);
+
+    return () => clearTimeout(timer); // Nettoyer le timeout pour éviter les fuites
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [oeuvresRes, headerRes, citationRes, footerRes, separationRes] =
+          await Promise.all([
+            fetch(oeuvresUrl).then((res) => res.json()),
+            fetch(headerUrl).then((res) => res.json()),
+            fetch(citationUrl).then((res) => res.json()),
+            fetch(footerUrl).then((res) => res.json()),
+            fetch(separationUrl).then((res) => res.json()),
+          ]);
+
+        setData({
+          oeuvres: oeuvresRes.data,
+          header: headerRes.data,
+          citation: citationRes.data,
+          footer: footerRes.data,
+          separation: separationRes.data,
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données :", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [oeuvresUrl, headerUrl, citationUrl, footerUrl, separationUrl]);
+
+  if (isLoading) {
+    return (
+      <div className="text-black text-3xl bg-stone-50 w-full h-screen items-center justify-center flex">
+        <div className="flex-col justify-center items-center text-center">
+          <div className="">0%</div>
+          <span className="text-sm ">Chargement en cours...</span>
+        </div>
+      </div>
+    ); // Vous pouvez personnaliser ce loader
+  }
+
   return (
     <>
-    
+      <motion.div
+        initial={{ y: 0 }}
+        animate={{ y: "-100%" }}
+        transition={{ delay: 2.4, duration: 0.8, ease: [0.85, 0, 0.15, 1] }}
+        className="text-black text-3xl items-center justify-center flex h-screen w-screen fixed bg-stone-50 z-50 top-0"
+      >
+        <div className=" flex-col justify-center items-center text-center">
+          <Timer />
+          <span className="text-sm">Chargement en cours...</span>
+        </div>
+      </motion.div>
+
       <AnimatePresence>
         {isModalOpen && selectedImage && (
           <Modal
@@ -43,11 +101,19 @@ export default function Content({oeuvres, header, citation, footer, separation})
           />
         )}
       </AnimatePresence>
+      <div className="h-full w-full ">
       <Header />
-      <Hero header={header}/>
-      <StickyCardsList oeuvres={oeuvres} openModal={openModal} />
-      <ObservationsCardsList separation={separation} citation={citation} oeuvres={oeuvres} openModal={openModal} />
-      <Footer footer={footer}/>
+
+      <Hero header={data.header} />
+      <StickyCardsList oeuvres={data.oeuvres} openModal={openModal} />
+      <ObservationsCardsList
+        separation={data.separation}
+        citation={data.citation}
+        oeuvres={data.oeuvres}
+        openModal={openModal}
+      />
+      <Footer footer={data.footer} />
+      </div>
     </>
   );
 }
