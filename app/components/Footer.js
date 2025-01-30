@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer({ footer }) {
   return (
-    <div className="FOOTER h-screen px-16 pb-16 pt-32 bg-stone-200 w-full grid grid-cols-4 sticky bottom-0 -z-10">
+    <div className="FOOTER h-screen px-4 md:px-16 pb-16 pt-32 bg-stone-200 w-full grid grid-cols-4 sticky bottom-0 -z-10">
       <div className="col-span-4 md:col-span-2 col-start-1 text-stone-950  flex flex-col justify-between ">
         <p className="text-3xl">
           {footer.contactText}

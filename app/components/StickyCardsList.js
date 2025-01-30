@@ -3,13 +3,19 @@
 import React from "react";
 import StickyCards from "./StickyCards";
 import { motion } from "framer-motion";
-export default function StickyCardsList({ease, openModal, oeuvres, duration }) {
+export default function StickyCardsList({
+  ease,
+  openModal,
+  oeuvres,
+  duration,
+}) {
   return (
     <motion.div
-    initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ ease: ease, duration: 1.2, delay: duration/1000 + 0.8 }}
-    className="STICKYCARDS h-full p-16 bg-stone-950 ">
+      initial={{ y: 50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ ease: ease, duration: 1.2, delay: duration / 1000 + 0.8 }}
+      className="STICKYCARDS h-full md:px-16 bg-stone-950 "
+    >
       {oeuvres
         .filter((oeuvre) => oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est true
         .sort((a, b) => {

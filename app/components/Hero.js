@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function Hero({ header, duration, ease }) {
   return (
-    <div className="HERO px-16 pt-48 pb-32 h-full grid grid-cols-3 md:grid-cols-4  bg-stone-950 md:space-y-16">
+    <div className="HERO px-4 md:px-16 space-y-16 pt-48 pb-32 h-full grid grid-cols-3 md:grid-cols-4  bg-stone-950 md:space-y-16">
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

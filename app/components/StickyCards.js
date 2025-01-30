@@ -15,11 +15,11 @@ export default function StickyCards({
   return (
     <div
     
-    className="sticky top-32 bg-stone-950"
+    className="sticky top-32 bg-stone-950 p-4 md-p8"
     >
-      <div className="md:flex">
+      <div className="md:flex ">
         <div className="md:w-1/2 ">
-          <div className="w-full flex justify-between ">
+          <div className="w-full flex justify-between gap-4">
             <h2 className="text-xl md:text-2xl text-stone-200 font-medium leading-6 md:leading-4">
               {title}
             </h2>
