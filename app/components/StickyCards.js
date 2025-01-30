@@ -9,13 +9,15 @@ export default function StickyCards({
   alt,
   id,
   openModal,
+  duration
 }) {
 
   return (
-    <motion.div 
-    className="sticky top-16 py-4 md:py-16 px-4 md:px-16 bg-stone-950 "
+    <div
+    
+    className="sticky top-32 bg-stone-950"
     >
-      <div className="md:flex relative ">
+      <div className="md:flex">
         <div className="md:w-1/2 ">
           <div className="w-full flex justify-between ">
             <h2 className="text-xl md:text-2xl text-stone-200 font-medium leading-6 md:leading-4">
@@ -47,6 +49,6 @@ export default function StickyCards({
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

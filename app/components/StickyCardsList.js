@@ -2,10 +2,14 @@
 
 import React from "react";
 import StickyCards from "./StickyCards";
-
-export default function StickyCardsList({ openModal, oeuvres }) {
+import { motion } from "framer-motion";
+export default function StickyCardsList({ease, openModal, oeuvres, duration }) {
   return (
-    <div className="h-full relative z-10">
+    <motion.div
+    initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ ease: ease, duration: 1.2, delay: duration/1000 + 0.8 }}
+    className="STICKYCARDS h-full p-16 bg-stone-950 ">
       {oeuvres
         .filter((oeuvre) => oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est true
         .sort((a, b) => {
@@ -23,8 +27,9 @@ export default function StickyCardsList({ openModal, oeuvres }) {
             date={new Date(oeuvre.date).getFullYear()}
             format={oeuvre.Format}
             alt={oeuvre.Titre}
+            duration={duration}
           />
         ))}
-    </div>
+    </motion.div>
   );
 }

@@ -1,6 +1,20 @@
+'use client'
+import Lenis from "lenis";
 import Content from "./components/Content";
+import { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    const lenis = new Lenis();
+
+    function raf(time) {
+      lenis.raf(time);
+
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+  }, []);
   return (
     <Content
       oeuvresUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`}

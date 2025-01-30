@@ -5,7 +5,7 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
 
   
   return (
-    <div className="grid grid-cols-4 relative gap-2 z-10 bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
+    <div className="grid grid-cols-4 gap-2  bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
       <Separation separation={separation}/>
       <div className="col-span-1"></div>
       {oeuvres

@@ -23,7 +23,8 @@ export default function Content({
   const [isLoading, setIsLoading] = useState(true);
   const [isFinishedTime, setIsFinishedTime] = useState(false);
   const [loadingTimer, setIsLoadingTimer] = useState(0);
-
+  const duration = 1000;
+  const ease = [0.16, 1, 0.3, 1]
   const openModal = (src) => {
     setSelectedImage(src);
     setIsModalOpen(true);
@@ -67,28 +68,36 @@ export default function Content({
     fetchData();
   }, [oeuvresUrl, headerUrl, citationUrl, footerUrl, separationUrl]);
 
+  useEffect(() => {
+    const calculateHeight = () => {
+      console.log(
+        "Hauteur après rendu:",
+        document.documentElement.scrollHeight
+      );
+    };
+    setTimeout(calculateHeight, 3500);
+  }, [data]);
+
   if (isLoading) {
     return (
       <div className="text-black text-3xl bg-stone-50 w-full h-screen items-center justify-center flex">
         <div className="flex-col justify-center items-center text-center">
           <div className="">0%</div>
-          <span className="text-sm ">Chargement en cours...</span>
         </div>
       </div>
-    ); // Vous pouvez personnaliser ce loader
+    );
   }
 
   return (
-    <>
+    <div className="h-full ">
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: "-100%" }}
-        transition={{ delay: 2.4, duration: 0.8, ease: [0.85, 0, 0.15, 1] }}
+        transition={{ease: ease, delay: duration / 1000 + 0.4, duration: 0.8, ease: [0.85, 0, 0.15, 1] }}
         className="text-black text-3xl items-center justify-center flex h-screen w-screen fixed bg-stone-50 z-50 top-0"
       >
         <div className=" flex-col justify-center items-center text-center">
-          <Timer />
-          <span className="text-sm">Chargement en cours...</span>
+          <Timer duration={duration}/>
         </div>
       </motion.div>
 
@@ -101,19 +110,19 @@ export default function Content({
           />
         )}
       </AnimatePresence>
-      <div className="h-full w-full ">
-      <Header />
+      <div className="bg-stone-950">
+      <Header duration={duration} ease={ease}/>
 
-      <Hero header={data.header} />
-      <StickyCardsList oeuvres={data.oeuvres} openModal={openModal} />
+      <Hero header={data.header} duration={duration} ease={ease}/>
+      <StickyCardsList oeuvres={data.oeuvres} openModal={openModal} duration={duration} ease={ease}/>
       <ObservationsCardsList
         separation={data.separation}
         citation={data.citation}
         oeuvres={data.oeuvres}
         openModal={openModal}
       />
-      <Footer footer={data.footer} />
       </div>
-    </>
+      <Footer footer={data.footer} />
+    </div>
   );
 }

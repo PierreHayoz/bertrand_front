@@ -9,7 +9,6 @@ export default function Modal({ isModalOpen, closeModal, selectedImage }) {
     } else {
       document.body.style.overflow = ""; // Réactive le scroll
     }
-
     // Cleanup pour réactiver le scroll si le composant est démonté
     return () => {
       document.body.style.overflow = "";
