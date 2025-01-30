@@ -25,37 +25,16 @@ html {
 body {
   padding: 0;
   margin: 0;
-  min-height: 100vh;
 }
 
-/* Avoid Chrome to see Safari hack */
-@supports (-webkit-touch-callout: none) {
-  body {
-    /* The hack for Safari */
-    min-height: -webkit-fill-available;
-  }
-}
+
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
 }
-html.lenis, html.lenis body {
-  height: auto;
- }
- .lenis.lenis-smooth {
-  scroll-behavior: auto !important;
- }
- .lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
- }
- .lenis.lenis-stopped {
-  overflow: hidden;
- }
- .lenis.lenis-smooth iframe {
-  pointer-events: none;
- }
+
 
 @keyframes fade-in {
   0% {

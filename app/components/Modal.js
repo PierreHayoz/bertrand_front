@@ -3,6 +3,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 
 export default function Modal({ isModalOpen, closeModal, selectedImage }) {
+  
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = "hidden"; // Bloque le scroll

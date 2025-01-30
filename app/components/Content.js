@@ -19,25 +19,21 @@ export default function Content({
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFinishedTime, setIsFinishedTime] = useState(false);
   const [loadingTimer, setIsLoadingTimer] = useState(0);
   const duration = 1000;
-  const ease = [0.16, 1, 0.3, 1]
+  const ease = [0.16, 1, 0.3, 1];
   const openModal = (src) => {
     setSelectedImage(src);
     setIsModalOpen(true);
   };
 
   const closeModal = () => setIsModalOpen(false);
-
-  useEffect(() => {
-    // Simuler la période minimale d'affichage de 4 secondes
-    const timer = setTimeout(() => {}, 3000);
-
-    return () => clearTimeout(timer); // Nettoyer le timeout pour éviter les fuites
-  }, []);
+  
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,6 +74,19 @@ export default function Content({
     setTimeout(calculateHeight, 3500);
   }, [data]);
 
+  useEffect(() => {
+    if (!isAnimationComplete) {
+      document.body.style.overflow = "hidden"; // Bloque le scroll
+    } else {
+      document.body.style.overflow = ""; // Réactive le scroll
+    }
+    // Cleanup pour réactiver le scroll si le composant est démonté
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isAnimationComplete]);
+
+
   if (isLoading) {
     return (
       <div className="text-black text-3xl bg-stone-50 w-full h-screen items-center justify-center flex">
@@ -89,15 +98,21 @@ export default function Content({
   }
 
   return (
-    <div className="h-full ">
+    <div className="h-full">
       <motion.div
         initial={{ y: 0 }}
         animate={{ y: "-100%" }}
-        transition={{ease: ease, delay: duration / 1000 + 0.4, duration: 0.8, ease: [0.85, 0, 0.15, 1] }}
+        transition={{
+          ease: ease,
+          delay: duration / 1000 + 0.4,
+          duration: 0.8,
+          ease: [0.85, 0, 0.15, 1],
+        }}
+        onAnimationComplete={() => {setIsAnimationComplete(true)}}
         className="text-black text-3xl items-center justify-center flex h-screen w-screen fixed bg-stone-50 z-50 top-0"
       >
         <div className=" flex-col justify-center items-center text-center">
-          <Timer duration={duration}/>
+          <Timer duration={duration} />
         </div>
       </motion.div>
 
@@ -111,16 +126,21 @@ export default function Content({
         )}
       </AnimatePresence>
       <div className="bg-stone-950">
-      <Header duration={duration} ease={ease}/>
+        <Header duration={duration} ease={ease} />
 
-      <Hero header={data.header} duration={duration} ease={ease}/>
-      <StickyCardsList oeuvres={data.oeuvres} openModal={openModal} duration={duration} ease={ease}/>
-      <ObservationsCardsList
-        separation={data.separation}
-        citation={data.citation}
-        oeuvres={data.oeuvres}
-        openModal={openModal}
-      />
+        <Hero header={data.header} duration={duration} ease={ease} />
+        <StickyCardsList
+          oeuvres={data.oeuvres}
+          openModal={openModal}
+          duration={duration}
+          ease={ease}
+        />
+        <ObservationsCardsList
+          separation={data.separation}
+          citation={data.citation}
+          oeuvres={data.oeuvres}
+          openModal={openModal}
+        />
       </div>
       <Footer footer={data.footer} />
     </div>

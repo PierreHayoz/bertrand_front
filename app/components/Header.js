@@ -3,7 +3,10 @@ import { motion } from "framer-motion";
 
 export default function Header({duration , ease}) {
   const [isEnd, setIsEnd] = useState(false);
-  console.log(isEnd);
+  const [isBlocked, setIsBlocked] = useState(true);
+  console.log(isBlocked)
+
+ 
   useEffect(() => {
     const handleScroll = () => {
       // Vérifie si la position de défilement est proche du bas
