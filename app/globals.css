@@ -27,7 +27,10 @@ body {
   margin: 0;
 }
 
-
+.background-semiTransparent{
+  background-color: rgba(20,20,20, 0.8)
+  
+}
 
 @layer utilities {
   .text-balance {

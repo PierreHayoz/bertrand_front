@@ -17,23 +17,13 @@ export default function Content({
   footerUrl,
   separationUrl,
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isFinishedTime, setIsFinishedTime] = useState(false);
-  const [loadingTimer, setIsLoadingTimer] = useState(0);
+  const [selectedArt, setSelectedArt] = useState(null);
   const duration = 1000;
   const ease = [0.16, 1, 0.3, 1];
-  const openModal = (src) => {
-    setSelectedImage(src);
-    setIsModalOpen(true);
-  };
 
-  const closeModal = () => setIsModalOpen(false);
-  
- 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,7 +76,6 @@ export default function Content({
     };
   }, [isAnimationComplete]);
 
-
   if (isLoading) {
     return (
       <div className="text-black text-3xl bg-stone-50 w-full h-screen items-center justify-center flex">
@@ -108,7 +97,9 @@ export default function Content({
           duration: 0.8,
           ease: [0.85, 0, 0.15, 1],
         }}
-        onAnimationComplete={() => {setIsAnimationComplete(true)}}
+        onAnimationComplete={() => {
+          setIsAnimationComplete(true);
+        }}
         className="text-black text-3xl items-center justify-center flex h-screen w-screen fixed bg-stone-50 z-50 top-0"
       >
         <div className=" flex-col justify-center items-center text-center">
@@ -117,11 +108,11 @@ export default function Content({
       </motion.div>
 
       <AnimatePresence>
-        {isModalOpen && selectedImage && (
+        {selectedArt && (
           <Modal
-            isModalOpen={isModalOpen}
-            selectedImage={selectedImage}
-            closeModal={closeModal}
+            setSelectedArt={setSelectedArt}
+            selectedArt={selectedArt}
+            oeuvres={data.oeuvres}
           />
         )}
       </AnimatePresence>
@@ -130,16 +121,16 @@ export default function Content({
 
         <Hero header={data.header} duration={duration} ease={ease} />
         <StickyCardsList
+          setSelectedArt={setSelectedArt}
           oeuvres={data.oeuvres}
-          openModal={openModal}
           duration={duration}
           ease={ease}
         />
         <ObservationsCardsList
+          setSelectedArt={setSelectedArt}
           separation={data.separation}
           citation={data.citation}
           oeuvres={data.oeuvres}
-          openModal={openModal}
         />
       </div>
       <Footer footer={data.footer} />

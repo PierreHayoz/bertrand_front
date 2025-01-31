@@ -8,6 +8,7 @@ export default function StickyCardsList({
   openModal,
   oeuvres,
   duration,
+  setSelectedArt,
 }) {
   return (
     <motion.div
@@ -25,11 +26,13 @@ export default function StickyCardsList({
         })
         .map((oeuvre) => (
           <StickyCards
+            onClick={() => setSelectedArt(oeuvre)}
             key={oeuvre.id}
             openModal={openModal}
             id={`oeuvre-${oeuvre.id}`}
             src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
             title={oeuvre.Titre}
+            numero={oeuvre.numero}
             date={new Date(oeuvre.date).getFullYear()}
             format={oeuvre.Format}
             alt={oeuvre.Titre}

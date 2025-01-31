@@ -2,15 +2,14 @@ import React from "react";
 
 export default function Footer({ footer }) {
   return (
-    <div className="FOOTER h-screen px-4 md:px-16 pb-16 pt-48 md:pt-32 bg-stone-200 w-full grid grid-cols-4 sticky bottom-0 -z-10">
-      <div className="col-span-4 md:col-span-2 col-start-1 text-stone-950  flex flex-col justify-between ">
-        <p className="text-3xl">
+    <div className="FOOTER h-screen px-4 md:px-16 pb-4 pt-48 md:pt-32 bg-stone-200 w-full grid grid-cols-4 sticky bottom-0 -z-10">
+      <div className="col-span-4 pr-16 md:col-span-2 col-start-1 text-stone-950  flex flex-col justify-between ">
+        <p className="text-2xl">
           {footer.contactText}
           <br />
           <a
             href={`mailto:${footer.Contact.Mail}`}
             className="relative z-10 cursor-pointer font-bold text-blue-500 hover:underline"
-            onClick={()=> {console.log("hello")}}
           >
             Contactez-moi !
           </a>

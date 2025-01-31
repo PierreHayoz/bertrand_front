@@ -1,9 +1,8 @@
 import ObservationsCards from "./ObservationsCards";
 import Separation from "./Separation";
 
-export default function ObservationsCardsList({ separation, openModal, oeuvres, citation }) {
+export default function ObservationsCardsList({setSelectedArt, separation, openModal, oeuvres, citation }) {
 
-  
   return (
     <div className="grid grid-cols-4 gap-2  bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
       <Separation separation={separation}/>
@@ -18,6 +17,7 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
         .map((oeuvre, index) => (
           <>
             <ObservationsCards
+              onClick={() => setSelectedArt(oeuvre)}
               key={oeuvre.id}
               openModal={openModal}
               id={`oeuvre-${oeuvre.id}`}
@@ -25,6 +25,7 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
               title={oeuvre.Titre}
               date={new Date(oeuvre.date).getFullYear()}// Affiche uniquement l'année
               format={oeuvre.Format}
+              numero={oeuvre.numero}
               alt={oeuvre.Titre}
             />
             <div
@@ -49,13 +50,13 @@ export default function ObservationsCardsList({ separation, openModal, oeuvres, 
               className={
                 index % 2 === 0
                   ? "flex md:hidden col-span-4"
-                  : "flex md:hidden col-span-1"
+                  : "flex md:hidden col-span-2"
               }
             >
               {index == 4 && (
-                <div className="md:px-8 px-4 py-8 h-full flex justify-center">
+                <div className="md:px-8 px-4 py-16 h-full flex justify-center">
                   <div className="text-white space-y-2 py-8">
-                    <h2 className="text-xl leading-6 citation">
+                    <h2 className="text-2xl leading-6 citation">
                       {citation.Citation}
                     </h2>
                     <p className="text-end pr-8">{citation.Auteur}</p>

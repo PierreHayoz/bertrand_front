@@ -8,8 +8,8 @@ export default function Hero({ header, duration, ease }) {
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ ease: ease, duration: 1.2, delay: duration/1000 + 0.8 }}
-        className="md:leading-9 text-xl leading-6 md:text-4xl md:col-span-2 col-span-2 text-stone-200"
+        transition={{ ease: ease, duration: 1.2, delay: duration / 1000 + 0.8 }}
+        className="md:leading-9 text-xl leading-6 md:text-3xl md:col-span-2 col-span-2 text-stone-200"
       >
         {header.mainTitle}
       </motion.div>
@@ -17,8 +17,8 @@ export default function Hero({ header, duration, ease }) {
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ ease: ease, duration: 1.2, delay: duration/1000 + 0.8  }}
-        className="md:leading-5 md:text-xl leading-5 md:col-start-3 col-start-2 col-span-3 md:col-span-1 text-stone-400 test-light"
+        transition={{ ease: ease, duration: 1.2, delay: duration / 1000 + 0.8 }}
+        className=" leading-5 md:col-start-3 col-start-2 col-span-3 md:col-span-1 text-stone-400 test-light"
       >
         {header.mainSubtitle}
       </motion.div>
