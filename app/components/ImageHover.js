@@ -2,55 +2,81 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-export default function ImageHover({ onClick, openModal, src, text, modalImageHeight }) {
+import Modal from "./Modal";
+export default function ImageHover({
+  src,
+  title,
+  date,
+  format,
+  numero,
+  text,
+  modalImageHeight,
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isImageClicked, setIsImageClicked] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
+  
   const handleHover = () => {
     setIsHovered(!isHovered);
   };
 
-  console.log(isButtonHovered);
+  const handleClick = () => {
+      setIsImageClicked(true);
+    if (isModalOpen){
+      setIsImageClicked(false);
+    }
+  };
   return (
-    <motion.div
-      onHoverStart={handleHover}
-      onHoverEnd={handleHover}
-      className="relative cursor-pointer"
-      onClick={onClick}
-    >
-      <Image
-        loading="lazy"
-        src={src}
-        width={600}
-        height={600}
-        alt="Image en grand"
-        className={`${modalImageHeight} transition-all duration-700  h-auto w-auto`}
-      />
+    <>
       <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ scale: 1, opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            transition={{ ease: [0.85, 0, 0.15, 1] }}
-            className="h-full w-full absolute flex justify-center items-center top-0 left-0"
-          >
-            <motion.div
-              initial={{ padding: "0.5em 1.5em" }}
-              animate={{ padding: isButtonHovered ? "2em 1.5em" : "0.5em 1.5em" }}
-              onHoverStart={() => {
-                setIsButtonHovered(true);
-              }}
-              onHoverEnd={() => {
-                setIsButtonHovered(false);
-              }}
-              className="background-semiTransparent text-stone-200 "
-            >
-              {text}
-            </motion.div>
-          </motion.div>
+        {isImageClicked && (
+          <Modal
+            src={src}
+            title={title}
+            date={date}
+            format={format}
+            numero={numero}
+            setIsImageClicked={setIsImageClicked}
+            isImageClicked={isImageClicked}
+          />
         )}
       </AnimatePresence>
-    </motion.div>
+      <motion.div
+        onClick={handleClick}
+        onHoverStart={handleHover}
+        onHoverEnd={handleHover}
+        className="relative cursor-pointer"
+      >
+        <Image
+          src={src}
+          width={600}
+          height={600}
+          alt="Image en grand"
+          onLoad={ ()=>console.log('finito') }
+          priority={true}
+          className={`${modalImageHeight}`}
+        />
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -50 }}
+              transition={{ ease: [0.85, 0, 0.15, 1] }}
+              className="h-full w-full absolute flex justify-center items-center top-0 left-0"
+            >
+              <div
+                
+                className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full"
+              >
+                {text}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </>
   );
 }

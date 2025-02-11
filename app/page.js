@@ -1,17 +1,23 @@
-'use client'
-import Lenis from "lenis";
-import Content from "./components/Content";
-import { useEffect } from "react";
+import HeroMain from "./components/HeroMain";
+import Hero from "./components/HeroMain";
+import ObservationsCardsList from "./components/ObservationsCardsList";
+import StickyCardsList from "./components/StickyCardsList";
 
-export default function Home() {
+export default async function Home() {
+  
 
+  const data = await fetch(
+  `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/selection?populate[Observations].Image?[populate]=*&populate[Abstraites].Image?[populate]=*`, {cache: 'no-store'}
+  );
+
+  const res = await data.json();
+  const oeuvres = res.data
+  
   return (
-    <Content
-      oeuvresUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`}
-      headerUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/header`}
-      citationUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/citation`}
-      footerUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/footer?populate=*`}
-      separationUrl={`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/separation?populate=*`}
-    />
+    <>
+      <HeroMain/>
+      <StickyCardsList oeuvres={oeuvres.Abstraites}/>
+      <ObservationsCardsList oeuvres={oeuvres.Observations}/>
+    </>
   );
 }

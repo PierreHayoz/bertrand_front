@@ -1,18 +1,19 @@
-import React from "react";
+import Hero from "../components/HeroMain";
+import HeroOeuvres from "../components/HeroOeuvres";
+import MasonryLayout from "../components/MasonryLayout";
 
-export default function page() {
+export default async function page() {
+  const data = await fetch(
+    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`
+  );
+  const oeuvres = await data.json();
+
   return (
-    <div className="p-16">
-      <div className="">
-        <span className="text-stone-400 text-sm pr-1 w-8">144.</span>
-        <span className="text-xl text-stone-200">Jambon de parme</span>
-        <div className="text-stone-400 text-sm">35 x 35cm</div>
+    <>
+      <HeroOeuvres />
+      <div className="md:px-16 pb-8 px-8 bg-stone-950">
+        <MasonryLayout oeuvres={oeuvres.data} />
       </div>
-      <div className="bg-blue-600">
-        <span className="text-stone-400 text-sm pr-1 w-8">4.</span>
-        <span className=" text-stone-200 text-xl">Jambon de parme</span>
-        <div className="text-stone-400 text-sm">35 x 35cm</div>
-      </div>
-    </div>
+    </>
   );
 }

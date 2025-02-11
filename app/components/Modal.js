@@ -1,16 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import ImageHover from "./ImageHover";
 
 export default function Modal({
-  isModalOpen,
-  closeModal,
-  setSelectedArt,
-  selectedArt,
+  setIsImageClicked,
+  isImageClicked,
+  src,
+  title,
+  date,
+  format,
+  numero,
 }) {
+    const [isHovered, setIsHovered] = useState(false);
+  
   useEffect(() => {
-    if (selectedArt) {
+    if (isImageClicked) {
       document.body.style.overflow = "hidden"; // Bloque le scroll
     } else {
       document.body.style.overflow = "";
@@ -18,9 +23,13 @@ export default function Modal({
     return () => {
       document.body.style.overflow = "";
     };
-  }, [selectedArt]);
-  if (!selectedArt) return null;
-console.log(selectedArt.Titre)
+  }, [isImageClicked]);
+  if (!isImageClicked) return null;
+
+  const handleHover = () => {
+    setIsHovered(!isHovered);
+  };
+
   return (
     <motion.div
       initial={{ y: "100%" }}
@@ -30,53 +39,55 @@ console.log(selectedArt.Titre)
       }}
       exit={{
         y: "-100%",
-        transition: { ease: [0.25, 1, 0.5, 1], delay: 0.6, duration: 0.6 },
+        transition: { ease: [0.25, 1, 0.5, 1], duration: 0.6 },
       }}
-      className="fixed top-0 left-0 h-screen w-full bg-stone-950 z-50 p-4 md:p-0"
+      className="fixed top-0 left-0 h-screen w-screen bg-stone-950 z-[100] p-4 md:p-0"
     >
-      <motion.div
-        initial={{
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-          y: 200,
-        }} // Initialisation avant que l'élément soit visible
-        animate={{
-          transition: {
-            ease: "easeIn",
-            duration: 0.6,
-            delay: 0.6,
-            ease: [0.65, 0, 0.35, 1],
-          },
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
-          y: 0,
-        }}
-        exit={{
-          transition: { ease: [0.25, 1, 0.5, 1], duration: 0.6 },
-          clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-          y: 200,
-        }} // Initialisation avant que l'élément soit visible
-        className="h-full flex items-center justify-center"
+      <div
+        // Initialisation avant que l'élément soit visible
+        className="bg-stone-950 flex h-full w-full items-center justify-center"
       >
-        <div className="max-h-[90vh] w-auto h-auto">
-          <ImageHover
-            onClick={() => setSelectedArt(null)}
-            src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${selectedArt.Image.url}`}
-            text="fermer"
-            modalImageHeight="max-h-[80vh]"
-          />
-          <div className="">
-            <span className="text-stone-400 text-sm pr-1 w-8">{selectedArt.numero}.</span>
-            <span className=" text-stone-200 text-xl">{selectedArt.Titre}</span>
+        <div className=" ">
+          <motion.div
+            onClick={()=>setIsImageClicked(false)}
+            onHoverStart={handleHover}
+            onHoverEnd={handleHover}
+            className="relative cursor-pointer"
+          >
+            <Image
+              src={src}
+              width={600}
+              height={600}
+              alt="Image en grand"
+              onLoad={() => console.log("finito")}
+              priority={true}
+            />
+            <AnimatePresence>
+              {isHovered && (
+                <motion.div
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -50 }}
+                  transition={{ ease: [0.85, 0, 0.15, 1] }}
+                  className="h-full w-full absolute flex justify-center items-center top-0 left-0"
+                >
+                  <div className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full">
+                    fermer
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+          <div>
+            <span className="text-stone-400 text-sm pr-1 w-8">{numero}.</span>
+            <span className=" text-stone-200 text-xl">{title}</span>
             <div className="flex justify-between">
-              <div className="text-stone-400 text-sm leading-3">
-              {selectedArt.Format}
-              </div>
-              <div className="text-stone-400 text-sm leading-3">
-              {selectedArt.Date}
-              </div>
+              <div className="text-stone-400 text-sm leading-3">{format}</div>
+              <div className="text-stone-400 text-sm leading-3">{date}</div>
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }

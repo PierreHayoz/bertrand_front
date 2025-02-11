@@ -1,5 +1,7 @@
 import localFont from "next/font/local";
 import "./globals.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -12,7 +14,6 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-
 export const metadata = {
   title: "Bertrand Kolly | Artiste peintre",
   description: "Site web d'exposition des oeuvres de Bertrand Kolly.",
@@ -24,7 +25,9 @@ export default function RootLayout({ children }) {
       <body
         className={` ${geistSans.variable} ${geistMono.variable} antialiased bg-stone-950`}
       >
+        <Header/>
         {children}
+        <Footer/>
       </body>
     </html>
   );

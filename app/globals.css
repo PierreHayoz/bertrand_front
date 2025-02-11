@@ -10,6 +10,9 @@
   }
 
 }
+html {
+  scrollbar-gutter: stable;
+}
 
 .citation{
   font-family: 'Times New Roman', Times, serif;

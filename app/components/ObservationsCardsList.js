@@ -1,14 +1,15 @@
+
+import Citation from "./Citation";
 import ObservationsCards from "./ObservationsCards";
 import Separation from "./Separation";
 
-export default function ObservationsCardsList({setSelectedArt, separation, openModal, oeuvres, citation }) {
+export default function ObservationsCardsList({ oeuvres}) {
 
   return (
-    <div className="grid grid-cols-4 gap-2  bg-stone-950 px-4 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
-      <Separation separation={separation}/>
+    <div className="grid grid-cols-4 gap-2  bg-stone-950 px-8 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
+      <Separation separation='hello world'/>
       <div className="col-span-1"></div>
       {oeuvres
-        .filter((oeuvre) => !oeuvre.isAbstract) // Filtrer les œuvres où isAbstract est false
         .sort((a, b) => {
           const dateA = new Date(a.date); // Convertir la date de A en objet Date
           const dateB = new Date(b.date); // Convertir la date de B en objet Date
@@ -17,9 +18,7 @@ export default function ObservationsCardsList({setSelectedArt, separation, openM
         .map((oeuvre, index) => (
           <>
             <ObservationsCards
-              onClick={() => setSelectedArt(oeuvre)}
               key={oeuvre.id}
-              openModal={openModal}
               id={`oeuvre-${oeuvre.id}`}
               src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
               title={oeuvre.Titre}
@@ -28,42 +27,7 @@ export default function ObservationsCardsList({setSelectedArt, separation, openM
               numero={oeuvre.numero}
               alt={oeuvre.Titre}
             />
-            <div
-              className={
-                index % 2 === 0
-                  ? "hidden md:flex col-span-2"
-                  : "hidden md:flex col-span-1"
-              }
-            >
-              {index == 4 && (
-                <div className="md:px-8 px-4 h-full flex justify-center items-center">
-                  <div className="text-white space-y-2">
-                    <h2 className="citation text-3xl leading-7 ">
-                      {citation.Citation}
-                    </h2>
-                    <p className=" text-end pr-8">{citation.Auteur}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div
-              className={
-                index % 2 === 0
-                  ? "flex md:hidden col-span-4"
-                  : "flex md:hidden col-span-2"
-              }
-            >
-              {index == 4 && (
-                <div className="md:px-8 px-4 py-16 h-full flex justify-center">
-                  <div className="text-white space-y-2 py-8">
-                    <h2 className="text-2xl leading-6 citation">
-                      {citation.Citation}
-                    </h2>
-                    <p className="text-end pr-8">{citation.Auteur}</p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <Citation index={index}/>
           </>
         ))}
     </div>
