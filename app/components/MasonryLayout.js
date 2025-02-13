@@ -12,7 +12,7 @@ const MasonryLayout = ({ oeuvres }) => {
   return (
     <div
       ref={masonryContainer}
-      className="md:px-16 px-8 pb-16 bg-stone-950 grid items-start grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 md:gap-12 relative z-10"
+      className="md:px-16 gap-8 px-8 pb-16 bg-stone-950 grid items-start grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 relative z-10"
     >
       {oeuvres
         .sort((a, b) => new Date(b.date) - new Date(a.date))
