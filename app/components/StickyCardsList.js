@@ -8,7 +8,6 @@ export default function StickyCardsList({ oeuvres }) {
   return (
     <div className="STICKYCARDS relative z-10 h-full px-8 md:px-16 bg-stone-950">
       {oeuvres
-        .filter((oeuvre) => oeuvre.isAbstract)
         .slice(0, 10)
         .map((oeuvre) => (
           <StickyCards
