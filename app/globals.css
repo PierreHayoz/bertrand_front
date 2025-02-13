@@ -13,7 +13,23 @@
 html {
   scrollbar-gutter: stable;
 }
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Colonne flexible */
+  gap: 1rem; /* Espacement entre les éléments */
+  width: 100%;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Crée une grille fluide */
+  gap: 20px; /* Espace entre les éléments */
+}
 
+@media (max-width: 768px) {
+  .masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Plus petites colonnes pour les petits écrans */
+  }
+}
 .citation{
   font-family: 'Times New Roman', Times, serif;
   font-weight: 200;

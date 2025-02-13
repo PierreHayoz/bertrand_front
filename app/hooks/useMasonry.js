@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 const useMasonry = () => {
   const masonryContainer = useRef(null);
   const [items, setItems] = useState([]);
-
+  
   useEffect(() => {
     if (masonryContainer.current) {
       setItems(Array.from(masonryContainer.current.children));
@@ -12,21 +12,15 @@ const useMasonry = () => {
 
   useEffect(() => {
     if (!masonryContainer.current) return;
-    let observer;
 
     const handleMasonry = () => {
       if (!items || items.length < 1 || !masonryContainer.current) return;
-    
-      let gapSize = 0;
-      if (masonryContainer.current) {
-        const computedStyle = window.getComputedStyle(masonryContainer.current);
-        if (computedStyle) {
-          gapSize = parseInt(computedStyle.getPropertyValue("grid-row-gap")) || 0;
-        }
-      }
-    
+
+      const gapSize = parseInt(window.getComputedStyle(masonryContainer.current).getPropertyValue("grid-row-gap")) || 0;
+
       items.forEach((el) => {
         if (!(el instanceof HTMLElement)) return;
+
         let previous = el.previousSibling;
         while (previous) {
           if (previous.nodeType === 1) {
@@ -41,26 +35,31 @@ const useMasonry = () => {
       });
     };
 
-    handleMasonry();
+    // Recalculer la mise en page après le redimensionnement ou l'ajout d'éléments
+    const handleResize = () => {
+      requestAnimationFrame(() => {
+        handleMasonry();
+      });
+    };
+
+    // Observer les changements dans le conteneur
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(masonryContainer.current);
 
     // Observer les changements dans les enfants du conteneur
-    observer = new MutationObserver(() => {
+    const observer = new MutationObserver(() => {
       setItems(Array.from(masonryContainer.current.children));
       handleMasonry();
     });
 
     observer.observe(masonryContainer.current, { childList: true });
 
-    // Observer le redimensionnement des éléments
-    const resizeObserver = new ResizeObserver(handleMasonry);
-    items.forEach((el) => resizeObserver.observe(el));
-
-    window.addEventListener("resize", handleMasonry);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       observer.disconnect();
       resizeObserver.disconnect();
-      window.removeEventListener("resize", handleMasonry);
+      window.removeEventListener("resize", handleResize);
     };
   }, [items]);
 
