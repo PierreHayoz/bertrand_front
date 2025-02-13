@@ -13,38 +13,14 @@ export default function ImageHover({
   modalImageHeight,
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const [isButtonHovered, setIsButtonHovered] = useState(false);
-  const [isImageClicked, setIsImageClicked] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false)
 
-  
   const handleHover = () => {
     setIsHovered(!isHovered);
   };
 
-  const handleClick = () => {
-      setIsImageClicked(true);
-    if (isModalOpen){
-      setIsImageClicked(false);
-    }
-  };
   return (
     <>
-      <AnimatePresence>
-        {isImageClicked && (
-          <Modal
-            src={src}
-            title={title}
-            date={date}
-            format={format}
-            numero={numero}
-            setIsImageClicked={setIsImageClicked}
-            isImageClicked={isImageClicked}
-          />
-        )}
-      </AnimatePresence>
       <motion.div
-        onClick={handleClick}
         onHoverStart={handleHover}
         onHoverEnd={handleHover}
         className="relative cursor-pointer"
@@ -54,10 +30,12 @@ export default function ImageHover({
           width={600}
           height={600}
           alt="Image en grand"
-          onLoad={ ()=>console.log('finito') }
+          onLoad={() => console.log("finito")}
           priority={true}
           className={`${modalImageHeight}`}
         />
+  
+
         <AnimatePresence>
           {isHovered && (
             <motion.div
@@ -67,10 +45,7 @@ export default function ImageHover({
               transition={{ ease: [0.85, 0, 0.15, 1] }}
               className="h-full w-full absolute flex justify-center items-center top-0 left-0"
             >
-              <div
-                
-                className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full"
-              >
+              <div className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full">
                 {text}
               </div>
             </motion.div>

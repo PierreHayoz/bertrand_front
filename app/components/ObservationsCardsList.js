@@ -1,10 +1,9 @@
-
 import Citation from "./Citation";
 import ObservationsCards from "./ObservationsCards";
 import Separation from "./Separation";
+import { useModal } from "@/context/ModalContext";
 
 export default function ObservationsCardsList({ oeuvres}) {
-
   return (
     <div className="grid grid-cols-4 gap-2  bg-stone-950 px-8 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
       <Separation separation='hello world'/>
@@ -17,7 +16,7 @@ export default function ObservationsCardsList({ oeuvres}) {
         })
         .map((oeuvre, index) => (
           <>
-            <ObservationsCards
+            <ObservationsCards  
               key={oeuvre.id}
               id={`oeuvre-${oeuvre.id}`}
               src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}

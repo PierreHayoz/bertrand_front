@@ -9,12 +9,10 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-export default function StickyCards({ src, title, date, format, numero }) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+export default function StickyCards({ src, title, date, format, numero, onClick }) {
   return (
-    <div
-      className=" bg-stone-950  md:pb-16 md:pt-0 sticky top-32"
+    <div 
+      className=" bg-stone-950  md:pb-16 md:pt-0 sticky top-32 z-10"
     >
       <div className="md:flex">
         <div className="md:w-1/2 hidden md:block">
@@ -25,7 +23,9 @@ export default function StickyCards({ src, title, date, format, numero }) {
           </div>
         </div>
         <div className="grid grid-cols-4 md:w-1/2 pt-4">
-          <div className="md:col-span-2 col-span-4 ">
+          <div
+          onClick={onClick}
+          className="md:col-span-2 col-span-4 ">
             <ImageHover
               src={src}
               text="afficher"

@@ -11,7 +11,7 @@ export default function Header() {
           href={"/"}
           className="leading-4 cursor-pointer"
         >
-          <div className={` text-xl md:text-2xl font-light`}>Bertrand Kolly</div>
+          <div className={` text-xl md:text-2xl font-bold`}>Bertrand Kolly</div>
         </Link>
         <Link href={"/playground"}>Les oeuvres</Link>
         {/* <ScrollToBottom/> */}

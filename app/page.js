@@ -12,7 +12,7 @@ export default async function Home() {
 
   const res = await data.json();
   const oeuvres = res.data
-  
+  console.log(oeuvres)
   return (
     <>
       <HeroMain/>

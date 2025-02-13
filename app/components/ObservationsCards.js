@@ -1,9 +1,8 @@
 "use client";
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
-import Image from "next/image";
 import ImageHover from "./ImageHover";
-import Modal from "./Modal";
+import { useModal } from "@/context/ModalContext";
 
 export default function ObservationsCards({
   src,
@@ -14,12 +13,10 @@ export default function ObservationsCards({
   numero,
 }) {
   
-
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   return (
     <>
-      
       <motion.div
         ref={ref}
         initial={{ opacity: 0, y: 20 }}

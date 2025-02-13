@@ -16,6 +16,7 @@ const MasonryLayout = ({ oeuvres }) => {
           return dateB - dateA; // Tri décroissant (du plus récent au plus ancien)
         })
       .map((oeuvre) => (
+        
         <div key={oeuvre.id} className="relative">
           <ImageHover
             format={oeuvre.Format}
