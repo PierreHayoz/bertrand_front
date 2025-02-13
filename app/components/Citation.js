@@ -12,7 +12,7 @@ export default function Citation({citation, index }) {
             : "hidden md:flex col-span-1"
         }
       >
-        {index == 4 && (
+        {index == 2 && (
           <div className="md:px-8 px-4 h-full flex justify-center items-center">
             <div className="text-white space-y-2">
               <h2 className="citation text-3xl leading-7 ">
