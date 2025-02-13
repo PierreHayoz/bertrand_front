@@ -4,7 +4,7 @@ import MasonryLayout from "../components/MasonryLayout";
 
 export default async function page() {
   const data = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`
+    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`, {cache: 'no-store'}
   );
   const oeuvres = await data.json();
 
