@@ -11,6 +11,7 @@ export default function ImageHover({
   numero,
   text,
   modalImageHeight,
+  type,
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -23,7 +24,7 @@ export default function ImageHover({
       <motion.div
         onHoverStart={handleHover}
         onHoverEnd={handleHover}
-        className="relative cursor-pointer"
+        className="relative cursor-pointer group"
       >
         <Image
           src={src}
@@ -32,7 +33,7 @@ export default function ImageHover({
           alt="Image en grand"
           onLoad={() => console.log("finito")}
           priority={true}
-          className={`${modalImageHeight}`}
+          className={`${type == 'first' ? 'w-full' : ''} group-hover:rounded-lg transiton-all duration-500`}
         />
   
 

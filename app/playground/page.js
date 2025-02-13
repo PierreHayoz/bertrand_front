@@ -11,7 +11,7 @@ export default async function page() {
   return (
     <>
       <HeroOeuvres />
-      <div className="md:px-16 pb-8 px-8 bg-stone-950">
+      <div className=" w-full pb-8  bg-red-200 ">
         <MasonryLayout oeuvres={oeuvres.data} />
       </div>
     </>

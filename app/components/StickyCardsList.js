@@ -6,7 +6,7 @@ export default function StickyCardsList({ oeuvres }) {
   const { openModal } = useModal();
 
   return (
-    <div className="STICKYCARDS relative h-full px-8 md:px-16 bg-stone-950">
+    <div className="STICKYCARDS relative z-10 h-full px-8 md:px-16 bg-stone-950">
       {oeuvres
         .filter((oeuvre) => oeuvre.isAbstract)
         .slice(0, 10)

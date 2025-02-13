@@ -1,12 +1,15 @@
+'use client'
 import Citation from "./Citation";
 import ObservationsCards from "./ObservationsCards";
 import Separation from "./Separation";
 import { useModal } from "@/context/ModalContext";
 
-export default function ObservationsCardsList({ oeuvres}) {
+export default function ObservationsCardsList({separation,
+   oeuvres, citation}) {
+    const {openModal} = useModal()
   return (
-    <div className="grid grid-cols-4 gap-2  bg-stone-950 px-8 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
-      <Separation separation='hello world'/>
+    <div className="grid grid-cols-4 gap-2 relative z-10 bg-stone-950 px-8 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
+      <Separation separation={separation}/>
       <div className="col-span-1"></div>
       {oeuvres
         .sort((a, b) => {
@@ -16,7 +19,11 @@ export default function ObservationsCardsList({ oeuvres}) {
         })
         .map((oeuvre, index) => (
           <>
-            <ObservationsCards  
+            <ObservationsCards
+              onClick={() => {
+              console.log("🟢 Click sur :", oeuvre);
+              openModal(oeuvre);
+            }}
               key={oeuvre.id}
               id={`oeuvre-${oeuvre.id}`}
               src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
@@ -26,7 +33,7 @@ export default function ObservationsCardsList({ oeuvres}) {
               numero={oeuvre.numero}
               alt={oeuvre.Titre}
             />
-            <Citation index={index}/>
+            <Citation index={index} citation={citation}/>
           </>
         ))}
     </div>

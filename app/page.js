@@ -12,12 +12,22 @@ export default async function Home() {
 
   const res = await data.json();
   const oeuvres = res.data
-  console.log(oeuvres)
+  const dataCitation = await fetch(
+    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/citation?populate=*`
+  );
+  const resCitation  = await dataCitation.json();
+  const citation = resCitation.data;
+
+  const dataSeparation = await fetch(
+    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/separation?populate=*`
+  );
+  const resSeparation = await dataSeparation.json();
+  const separation = resSeparation.data;
   return (
     <>
       <HeroMain/>
       <StickyCardsList oeuvres={oeuvres.Abstraites}/>
-      <ObservationsCardsList oeuvres={oeuvres.Observations}/>
+      <ObservationsCardsList separation={separation} oeuvres={oeuvres.Observations} citation={citation}/>
     </>
   );
 }

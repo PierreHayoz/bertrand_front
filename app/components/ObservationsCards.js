@@ -2,7 +2,6 @@
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import ImageHover from "./ImageHover";
-import { useModal } from "@/context/ModalContext";
 
 export default function ObservationsCards({
   src,
@@ -25,7 +24,9 @@ export default function ObservationsCards({
         className="md:col-span-1 col-span-4 h-full"
       >
         <p className="text-stone-400 text-sm hidden md:inline-block">{date}</p>
-        <ImageHover date={date} format={format} numero={numero} title={title} src={src} text="afficher" onClick={onClick} />
+        <div onClick={onClick} className="">
+        <ImageHover date={date} format={format} numero={numero} title={title} src={src} text="afficher" />
+        </div>
         <div className="flex justify-between">
           <div className="">
             <span className="text-stone-400 text-sm pr-1 w-8">{numero}.</span>

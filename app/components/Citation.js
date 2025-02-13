@@ -1,11 +1,8 @@
+'use client'
 import React from "react";
 
-export default async function Citation({ index }) {
-  const data = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/citation?populate=*`
-  );
-  const res = await data.json();
-  const citation = res.data;
+export default function Citation({citation, index }) {
+  
   return (
     <>
       <div
