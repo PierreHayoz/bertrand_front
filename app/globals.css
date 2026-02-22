@@ -30,14 +30,13 @@ html {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Plus petites colonnes pour les petits écrans */
   }
 }
+
 .citation{
   font-family: 'Times New Roman', Times, serif;
   font-weight: 200;
   font-style: italic;
 }
-body {
-  font-family: var(--font-geist-sans);
-}
+
 html {
   height: -webkit-fill-available;
 }
@@ -60,7 +59,7 @@ body {
 
 @keyframes fade-in {
   0% {
-    opacity: 0;
+    opacity: 0.9;
     transform: translateY(20px);
   }
   100% {
@@ -72,3 +71,49 @@ body {
 .rolling {
   animation: fade-in 0.5s ease-in-out;
 }
+
+
+/* ===== Page Transitions (next-transition-router) ===== */
+
+.page-transition-overlay{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 500;
+
+  background: rgba(12,10,9,1); /* stone-950 vibe */
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 350ms cubic-bezier(.2,.8,.2,1),
+    transform 350ms cubic-bezier(.2,.8,.2,1);
+}
+
+/* pendant la sortie (avant navigation) */
+html.is-leaving .page-transition-overlay{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* optionnel: réduit l’anim si l’utilisateur préfère */
+@media (prefers-reduced-motion: reduce){
+  .page-transition-overlay{
+    transition: none;
+  }
+}
+
+
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+

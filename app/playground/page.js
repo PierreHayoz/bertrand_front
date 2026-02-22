@@ -1,19 +1,33 @@
-import Hero from "../components/HeroMain";
-import HeroOeuvres from "../components/HeroOeuvres";
-import MasonryLayout from "../components/MasonryLayout";
+import Grid from "../components/Grid";
+import { getOeuvres } from "../lib/oeuvres";
 
-export default async function page() {
-  const data = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/oeuvres?populate=*`, {cache: 'no-store'}
-  );
-  const oeuvres = await data.json();
 
-  return (
-    <>
-      <HeroOeuvres />
-      <div className=" w-full pb-8 ">
-        <MasonryLayout oeuvres={oeuvres.data} />
-      </div>
-    </>
-  );
+export default async function Page({  }) {
+    const oeuvres = (await getOeuvres()) ?? [];
+    console.log(oeuvres)
+    return (
+        <div className="max-w-7xl mx-auto py-24">
+            <Grid oeuvres={oeuvres}/>
+        </div>
+    );
+}
+
+function toDate(v) {
+    if (!v) return null;
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function pickNextExpo(expos = []) {
+    const now = new Date();
+    const valid = expos
+        .map((e) => ({ ...e, start: toDate(e.dateDebut), end: toDate(e.dateFin) }))
+        .filter((e) => e.start);
+
+    // en cours ou à venir
+    return (
+        valid
+            .filter((e) => (e.end ? now <= e.end : now <= e.start))
+            .sort((a, b) => a.start - b.start)[0] ?? null
+    );
 }

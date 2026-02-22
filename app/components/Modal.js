@@ -1,10 +1,14 @@
-'use client'
+"use client";
+
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
+import { Expand, Minimize, Minimize2 } from "lucide-react";
+
 export default function Modal({
-  setIsImageClicked, // Fonction pour fermer le modal
-  isImageClicked,
+  isOpen,
+  onClose,
+  instantClose = false,
   src,
   title,
   date,
@@ -14,59 +18,84 @@ export default function Modal({
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    document.body.style.overflow = isImageClicked ? "hidden" : "";
+    document.body.style.overflow = isOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isImageClicked]);
+  }, [isOpen]);
 
-  if (!isImageClicked) return null;
+  if (!isOpen) return null;
 
   return (
     <motion.div
-      initial={{ y: "100%" }}
-      animate={{ y: 0, transition: { duration: 0.6, ease: [0.65, 0, 0.35, 1] } }}
-      exit={{ y: "-100%", transition: { ease: [0.25, 1, 0.5, 1], duration: 0.6 } }}
-      className="fixed MODAL top-0 left-0 h-screen w-screen bg-stone-950 z-50 p-4 md:p-0"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: 1,
+        transition: { duration: 0.35, ease: [0.65, 0, 0.35, 1] },
+      }}
+      exit={
+        instantClose
+          ? { opacity: 0, transition: { duration: 0 } }
+          : { opacity: 0, transition: { duration: 0.25, ease: [0.25, 1, 0.5, 1] } }
+      }
+      className="fixed inset-0 bg-black z-[9999]"
+      role="dialog"
+      aria-modal="true"
     >
-      <div className="bg-stone-950 flex h-full w-full items-center justify-center">
-        <div>
-          <motion.div
-            onClick={() => setIsImageClicked(false)}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            className="relative cursor-pointer"
-          >
-            <Image
-              className="h-auto w-auto max-h-[80vh]"
-              src={src}
-              width={600}
-              height={600}
-              alt="Image en grand"
-              priority={true}
-            />
-            <AnimatePresence>
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -50 }}
-                  transition={{ ease: [0.85, 0, 0.15, 1] }}
-                  className="absolute flex justify-center items-center h-full w-full top-0 left-0"
-                >
-                  <div className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full">
-                    fermer
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-          <div>
-            <span className="text-stone-400 text-sm pr-1">{numero}.</span>
-            <span className="text-stone-200 text-xl">{title}</span>
-            <div className="flex justify-between">
-              <div className="text-stone-400 text-sm">{format}</div>
-              <div className="text-stone-400 text-sm">{date}</div>
+      {/* Layout plein écran */}
+      <div className="h-full w-full bg-stone-950 px-8">
+        {/* Ici tu gères tes paddings */}
+        <div className="h-full w-full flex items-center justify-center">
+          {/* Bloc centré */}
+          <div className="flex flex-col items-start">
+            {/* IMAGE */}
+            <motion.div
+              onClick={onClose}
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
+              className="relative cursor-pointer"
+              layout
+            >
+              <Image
+                src={src}
+                width={1200}
+                height={1200}
+                alt={title || "Œuvre"}
+                priority
+                className="
+                  w-auto h-auto
+                  max-h-[calc(100vh-18rem)]
+                "
+              />
+
+              <AnimatePresence>
+                {isHovered && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -30 }}
+                    transition={{ ease: [0.85, 0, 0.15, 1], duration: 0.2 }}
+                    className="absolute inset-0 flex justify-center items-center"
+                  >
+                    <div className="backdrop-blur bg-stone-200 text-stone-950 px-6 py-6 rounded-full">
+                      <Minimize2 size={20} strokeWidth={1.4}/>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* META — sous l’image, aligné à gauche */}
+            <div className="mt-4">
+              <div>
+                <span className="text-stone-400 text-sm pr-2">{numero}.</span>
+                <span className="first-letter:uppercase text-stone-200 text-xl">{title}</span>
+              </div>
+
+              <div className="mt-2 flex gap-6">
+                <div className="text-stone-400 text-sm">{format}</div>
+                <div className="text-stone-400 text-sm">{date}</div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,48 +1,60 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
 import { AnimatePresence } from "framer-motion";
+import { usePathname, useSearchParams } from "next/navigation";
 import Modal from "@/app/components/Modal";
 
-// Création du contexte
-const ModalContext = createContext();
+const ModalContext = createContext(null);
+export function useModal() { return useContext(ModalContext); }
 
-// Hook pour utiliser le contexte
-export function useModal() {
-  return useContext(ModalContext);
-}
-
-// Provider pour gérer l'état global du modal
 export function ModalProvider({ children }) {
-  const [isImageClicked, setIsImageClicked] = useState(false);
-  const [imageClicked, setImageClicked] = useState(null);
-  const openModal = (oeuvre) => {
-    console.log("🟢 Ouverture du modal avec image:", oeuvre.Image.url);
-  
-    // Mise à jour de l'état
-    setImageClicked(oeuvre);  // Assure-toi que `oeuvre` est bien ce que tu veux
-    setIsImageClicked(true);
-  };
-  
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const routeKey = `${pathname}?${searchParams.toString()}`;
 
-  const closeModal = () => {
-    console.log("🔴 Fermeture du modal");
-    setIsImageClicked(false);
-  };
+  const [isOpen, setIsOpen] = useState(false);
+  const [current, setCurrent] = useState(null);
+  const [instantClose, setInstantClose] = useState(false);
+
+  const openModal = useCallback((oeuvre /*, _list */) => {
+    setInstantClose(false);
+    setCurrent(oeuvre ?? null);
+    setIsOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsOpen(false);
+    setCurrent(null);
+  }, []);
+
+  // ✅ fermeture due à navigation => pas d'animation de sortie
+  useEffect(() => {
+    if (!isOpen) return;
+    setInstantClose(true);
+    // on ferme au prochain tick, après avoir basculé le flag
+    queueMicrotask(() => closeModal());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeKey]);
+
+  const value = useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal }}>
+    <ModalContext.Provider value={value}>
       {children}
 
-      <AnimatePresence>
-        {isImageClicked && imageClicked && (
+      <AnimatePresence mode="sync">
+        {isOpen && current && (
           <Modal
-            setIsImageClicked={closeModal}
-            isImageClicked={isImageClicked}
-            src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${imageClicked.Image.url}`}
-            title={imageClicked.Titre}
-            date={imageClicked.Date}
-            format={imageClicked.Format}
-            numero={imageClicked.numero}
+            key={current.id ?? current.imageUrl ?? "modal"}
+            isOpen={isOpen}
+            onClose={closeModal}
+            instantClose={instantClose}
+            src={current.imageUrl}
+            title={current.titre}
+            date={current.date ? new Date(current.date).getFullYear() : null}
+            format={current.format}
+            numero={current.numero}
           />
         )}
       </AnimatePresence>

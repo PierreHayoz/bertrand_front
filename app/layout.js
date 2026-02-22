@@ -3,16 +3,14 @@ import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { ModalProvider } from "@/context/ModalContext";
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { Google_Sans_Flex } from 'next/font/google'
+import SmoothScrollProvider, { LenisProvider } from "./lenis-providers";
+
+const gsf = Google_Sans_Flex({
+  weight: '400',
+  subsets: ['latin'],
+})
+
 
 export const metadata = {
   title: "Bertrand Kolly | Artiste peintre",
@@ -23,13 +21,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={` ${geistSans.variable} ${geistMono.variable} antialiased bg-stone-950`}
+        className={` ${gsf.className} antialiased bg-stone-950`}
       >
-        <Header/>
-        <ModalProvider>
-        {children}
-        </ModalProvider>
-        <Footer/>
+        <div className="z-[10] bg-red-300 relative">
+        <Header />
+          
+          <ModalProvider>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </ModalProvider>
+        </div>
+        <Footer />
       </body>
     </html>
   );

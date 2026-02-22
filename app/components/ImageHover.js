@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Modal from "./Modal";
+import { ArrowBigDown, Expand, ExpandIcon, Maximize2 } from "lucide-react";
 export default function ImageHover({
   src,
   title,
@@ -22,8 +23,8 @@ export default function ImageHover({
   return (
     <>
       <motion.div
-        onHoverStart={handleHover}
-        onHoverEnd={handleHover}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
         className="relative cursor-pointer group"
       >
         <Image
@@ -31,12 +32,9 @@ export default function ImageHover({
           width={600}
           height={600}
           alt="Image en grand"
-          onLoad={() => console.log("finito")}
           priority={true}
-          className={`${type == 'first' ? 'w-full' : ''} group-hover:rounded-lg transiton-all duration-500`}
+          className={`${type == 'first' ? 'w-full' : ''} aspect-square group-hover:rounded-lg transition-all duration-500`}
         />
-  
-
         <AnimatePresence>
           {isHovered && (
             <motion.div
@@ -46,8 +44,8 @@ export default function ImageHover({
               transition={{ ease: [0.85, 0, 0.15, 1] }}
               className="h-full w-full absolute flex justify-center items-center top-0 left-0"
             >
-              <div className="background-semiTransparent text-stone-200 py-2 px-4 rounded-full">
-                {text}
+              <div className="bg-stone-200 text-stone-950 px-5 py-5 rounded-full">
+                <Maximize2 size={20} strokeWidth={1.4} />
               </div>
             </motion.div>
           )}

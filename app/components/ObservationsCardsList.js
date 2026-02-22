@@ -1,16 +1,15 @@
 'use client'
+import { Fragment } from "react";
 import Citation from "./Citation";
 import ObservationsCards from "./ObservationsCards";
-import Separation from "./Separation";
 import { useModal } from "@/context/ModalContext";
 
-export default function ObservationsCardsList({separation,
-   oeuvres, citation}) {
-    const {openModal} = useModal()
+export default function ObservationsCardsList({ 
+  oeuvres, citation }) {
+  const { openModal } = useModal()
+  console.log(citation)
   return (
-    <div className="grid grid-cols-4 gap-2 relative z-10 bg-stone-950 px-8 md:px-16 md:gap-4 pb-16 pt-8 md:pb-32 md:pt-16">
-      <Separation separation={separation}/>
-      <div className="col-span-1"></div>
+    <div className="bg-stone-950 grid grid-cols-4 gap-2 relative z-10  md:gap-4  pt-8 md:pt-16">
       {oeuvres
         .sort((a, b) => {
           const dateA = new Date(a.date); // Convertir la date de A en objet Date
@@ -18,23 +17,27 @@ export default function ObservationsCardsList({separation,
           return dateB - dateA; // Tri décroissant (du plus récent au plus ancien)
         })
         .map((oeuvre, index) => (
-          <>
+          <Fragment key={oeuvre.id}>
             <ObservationsCards
               onClick={() => {
-              console.log("🟢 Click sur :", oeuvre);
-              openModal(oeuvre);
-            }}
-              key={oeuvre.id}
+                console.log("🟢 Click sur :", oeuvre);
+                openModal(oeuvre);
+              }}
+
               id={`oeuvre-${oeuvre.id}`}
-              src={`${process.env.NEXT_PUBLIC_STRAPI_URL}${oeuvre.Image.url}`}
-              title={oeuvre.Titre}
+              src={oeuvre.imageUrl}
+              title={oeuvre.titre}
               date={new Date(oeuvre.date).getFullYear()}// Affiche uniquement l'année
-              format={oeuvre.Format}
+              format={oeuvre.format}
               numero={oeuvre.numero}
               alt={oeuvre.Titre}
             />
-            <Citation index={index} citation={citation}/>
-          </>
+            <Citation
+              index={index}
+              citation={citation?.text}
+              auteur={citation?.auteur}
+            />
+          </Fragment>
         ))}
     </div>
   );
