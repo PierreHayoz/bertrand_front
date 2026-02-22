@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import { ModalProvider } from "@/context/ModalContext";
 import { Google_Sans_Flex } from 'next/font/google'
 import SmoothScrollProvider, { LenisProvider } from "./lenis-providers";
+import { Suspense } from "react";
 
 const gsf = Google_Sans_Flex({
   weight: '400',
@@ -24,11 +25,12 @@ export default function RootLayout({ children }) {
         className={` ${gsf.className} antialiased bg-stone-950`}
       >
         <div className="z-[10] bg-red-300 relative">
-        <Header />
-          
-          <ModalProvider>
-            <SmoothScrollProvider>{children}</SmoothScrollProvider>
-          </ModalProvider>
+          <Header />
+          <Suspense fallback={null}>
+            <ModalProvider>
+              <SmoothScrollProvider>{children}</SmoothScrollProvider>
+            </ModalProvider>
+          </Suspense>
         </div>
         <Footer />
       </body>
