@@ -43,7 +43,7 @@ export default function Separation({ separation }) {
             <div
               ref={ref}
               className="
-                rounded-2xl md:group border border-stone-900/80
+                rounded-2xl group border border-stone-900/80
                 overflow-hidden relative p-6 md:p-8
                 hover:border-stone-700
                 transition-all duration-300
