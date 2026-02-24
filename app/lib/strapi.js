@@ -6,7 +6,7 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 export async function fetchStrapi(url) {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const res = await fetch(url, { next: { revalidate: 0 } });
   const text = await res.text();
 
   let json = null;

@@ -5,7 +5,7 @@ async function getFooter() {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/footer?populate=*`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 0 } }
     );
     if (!res.ok) return null;
     return res.json();

@@ -26,7 +26,7 @@ export async function getOeuvres() {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
   const res = await fetch(`${STRAPI_URL}/api/oeuvres?populate=Image`, {
-    next: { revalidate: 3600 }
+    next: { revalidate: 0 }
   });
 
   if (!res.ok) {
