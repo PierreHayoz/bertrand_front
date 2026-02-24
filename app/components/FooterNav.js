@@ -23,7 +23,7 @@ export default function FooterNav() {
   };
 
   return (
-    <nav className="mt-5 flex md:flex-col gap-3">
+    <nav className="mt-5 flex flex-wrap md:flex-col gap-3">
       {nav.map((item) => {
         const active = isActive(item.href);
 

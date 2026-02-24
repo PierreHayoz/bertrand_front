@@ -12,7 +12,12 @@ function mapOeuvre(o) {
     format: o.Format ?? null,
     numero: o.numero ?? null,
     date: o.date ?? null,
-    imageUrl: toAbsoluteUrl(o.Image?.url),
+    // Grille
+    imageUrl: toAbsoluteUrl(o.Image?.formats?.small?.url ?? o.Image?.url),
+    // Modal
+    imageUrlModal: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
+    // Image mise en avant
+    imageUrlFeatured: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
     imageAlt: o.Image?.alternativeText ?? null,
   };
 }
@@ -21,7 +26,7 @@ export async function getOeuvres() {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
   const res = await fetch(`${STRAPI_URL}/api/oeuvres?populate=Image`, {
-    cache: "no-store",
+    next: { revalidate: 3600 }
   });
 
   if (!res.ok) {

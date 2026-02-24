@@ -1,11 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useMemo, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import TransitionLink from "./TransitionLink";
 
 export default function Header() {
   const pathname = usePathname();
@@ -57,25 +56,23 @@ useEffect(() => {
     <header className="fixed top-0 z-[100] w-full bg-stone-950/80 backdrop-blur border-b border-stone-900/70">
       <div className="mx-auto max-w-7xl px-8 md:px-16 h-16 flex items-center justify-between">
         {/* Brand */}
-        <Link
+        <TransitionLink
           href="/"
           className="group inline-flex items-center gap-3"
-          onClick={() => setOpen(false)}
         >
           <span className="leading-none">
             <span className="text-lg  text-stone-200">
               Bertrand Kolly
             </span>
-
           </span>
-        </Link>
+        </TransitionLink>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-4">
           {nav.map((item) => {
             const active = isActive(item.href);
             return (
-              <Link
+              <TransitionLink
                 key={item.href}
                 href={item.href}
                 className="group relative"
@@ -87,7 +84,7 @@ useEffect(() => {
                   <div className={`w-full h-full group-hover:left-0 top-0 duration-300 ${active ? "left-0" : "-left-full"} absolute bg-stone-200 mix-blend-difference`}></div>
                 </span>
 
-              </Link>
+              </TransitionLink>
             );
           })}
         </nav>
@@ -116,7 +113,7 @@ useEffect(() => {
                   const active = isActive(navItem.href);
                   return (
                     <motion.div key={navItem.href}>
-                      <Link
+                      <TransitionLink
                         href={navItem.href}
                         prefetch
                         className="block py-4"
@@ -138,7 +135,7 @@ useEffect(() => {
                         </div>
 
                         <div className="mt-4 h-px bg-stone-900/70" />
-                      </Link>
+                      </TransitionLink>
                     </motion.div>
                   );
                 })}

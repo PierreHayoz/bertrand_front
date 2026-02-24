@@ -2,12 +2,16 @@
 // next.config.js
 const nextConfig = {
   images: {
-        unoptimized: process.env.NODE_ENV === "development",
     remotePatterns: [
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '1337',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'contenu.bertrandkolly.ch',
         pathname: '/uploads/**',
       },
     ],

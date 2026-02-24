@@ -1,18 +1,12 @@
 import Image from "next/image";
 import { getAbout } from "../lib/about";
 import BlocksRenderer from "../components/BlocksRenderer";
-import Citation from "../components/Citation";
 import ExploreCta from "../components/ExploreCTA";
 import ExpoGalleryCarousel from "../components/ExpoGalleryCarousel";
 import Reveal from "../components/Reveal";
-import { Playfair_Display } from "next/font/google";
 import PageHeaderAnimated from "../components/PageHeaderAnimated";
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-});
+
 export default async function AboutPage() {
   const about = await getAbout();
   return (
@@ -24,7 +18,7 @@ export default async function AboutPage() {
           description={about.hero?.subtitle}
         />
         {about.image?.url ? (
-          <Reveal delay={0.3}>
+          <Reveal>
           <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
               <div className="md:col-span-6">
@@ -34,9 +28,9 @@ export default async function AboutPage() {
                       src={about.image.url}
                       alt={about.image.alt || "À propos"}
                       fill
+                      priority={true}
                       className="object-cover object-center"
                       sizes="(max-width: 768px) 100vw, 900px"
-                      priority
                     />
                   </div>
                 </div>

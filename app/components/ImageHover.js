@@ -2,37 +2,25 @@
 import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Modal from "./Modal";
-import { ArrowBigDown, Expand, ExpandIcon, Maximize2 } from "lucide-react";
+import { Maximize2 } from "lucide-react";
 export default function ImageHover({
   src,
-  title,
-  date,
-  format,
-  numero,
-  text,
-  modalImageHeight,
   type,
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleHover = () => {
-    setIsHovered(!isHovered);
-  };
-
   return (
     <>
       <motion.div
-        onHoverStart={() => setIsHovered(true)}
+        onHoverStart={() => { setIsHovered(true)}}
         onHoverEnd={() => setIsHovered(false)}
         className="relative cursor-pointer group"
       >
         <Image
           src={src}
-          width={600}
-          height={600}
+          width={400}
+          height={400}
           alt="Image en grand"
-          priority={true}
           className={`${type == 'first' ? 'w-full' : ''} aspect-square group-hover:rounded-lg transition-all duration-500`}
         />
         <AnimatePresence>

@@ -1,11 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useModal } from "@/context/ModalContext";
 import ImageHover from "./ImageHover";
 import ExploreCta from "./ExploreCTA";
 import PageHeaderAnimated from "./PageHeaderAnimated";
 import Reveal from "./Reveal";
+import TransitionLink from "./TransitionLink";
+import Link from "next/link";
 
 export default function OeuvresLayout({
   latest,
@@ -13,7 +14,6 @@ export default function OeuvresLayout({
   total,
   page,
   totalPages,
-  nextExpo,
 }) {
   const { openModal } = useModal();
 
@@ -33,9 +33,8 @@ export default function OeuvresLayout({
           </div>
         ) : null}
 
-        {/* Featured */}
         {latest ? (
-          <Reveal delay={0.3}>
+          <Reveal>
             <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
               <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
                 <div className="md:col-span-5">
@@ -68,34 +67,32 @@ export default function OeuvresLayout({
 
                 <button
                   type="button"
-                  onClick={() => openModal(latest, [latest, ...rest])}
+                  onClick={() => openModal(latest)}
                   className="md:col-span-7 text-left rounded-2xl border border-stone-900/80 hover:border-stone-700 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                 >
                   <ImageHover
+                    priority={true}
                     type="first"
                     format={latest.format}
                     numero={latest.numero}
                     title={latest.titre}
                     date={latest.date ? new Date(latest.date).getFullYear() : null}
-                    width={1100}
-                    height={1100}
+                    width={600}
+                    height={600}
                     alt={latest.imageAlt ?? latest.titre ?? "oeuvre"}
                     text="afficher"
-                    src={latest.imageUrl}
+                    src={latest.imageUrlFeatured}
                   />
                 </button>
               </div>
             </section>
           </Reveal>
         ) : null}
-
-        {/* Grid */}
+        <Reveal>
         <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {rest.map((oeuvre) => (
               <div key={oeuvre.id} onClick={() => openModal(oeuvre)}>
-                <Reveal>
-                
                 <ImageHover
                   type="first"
                   format={oeuvre.format}
@@ -108,12 +105,10 @@ export default function OeuvresLayout({
                   text="afficher"
                   src={oeuvre.imageUrl}
                 />
-                </Reveal>
               </div>
             ))}
           </div>
 
-          {/* Pagination */}
           <nav className="mt-10 flex items-center justify-between">
             <Link
               href={`/oeuvres?page=${Math.max(1, page - 1)}`}
@@ -142,7 +137,7 @@ export default function OeuvresLayout({
             </Link>
           </nav>
         </section>
-
+</Reveal>
         <ExploreCta
           cards={[
             {

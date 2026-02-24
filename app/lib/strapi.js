@@ -6,7 +6,7 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 export async function fetchStrapi(url) {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, { next: { revalidate: 3600 } });
   const text = await res.text();
 
   let json = null;
@@ -24,11 +24,13 @@ export async function fetchStrapi(url) {
   return json;
 }
 
-export function getImageUrl(image) {
+
+export function getImageUrl(image, format = "small") {
   if (!STRAPI_URL || !image) return null;
 
-  const rel = image?.url ?? image?.data?.url ?? null;
-  if (!rel) return null;
+  const formatted = image?.formats?.[format]?.url ?? null;
+  const rel = formatted ?? image?.url ?? null;
 
+  if (!rel) return null;
   return rel.startsWith("http") ? rel : `${STRAPI_URL}${rel}`;
 }

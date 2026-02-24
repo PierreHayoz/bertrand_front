@@ -1,10 +1,12 @@
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getExpositionBySlug } from "../../lib/expositions";
 import BlocksRenderer from "../../components/BlocksRenderer";
 import ExpoGalleryCarousel from "@/app/components/ExpoGalleryCarousel";
 import ExploreCta from "@/app/components/ExploreCTA";
+import TransitionLink from "@/app/components/TransitionLink";
+
+
 
 function toDate(value) {
   if (!value) return null;
@@ -146,12 +148,12 @@ export default async function Page({ params }) {
       <div className="mx-auto max-w-7xl px-8 md:px-16 pt-32 md:pt-44  pb-16 md:pb-24">
         {/* Breadcrumb */}
         <div className="mb-8">
-          <Link
+          <TransitionLink
             href="/expositions"
             className="text-xs tracking-[0.2em] uppercase text-stone-500 hover:text-stone-300 transition-colors"
           >
             ← Retour aux expositions
-          </Link>
+          </TransitionLink>
         </div>
 
         {/* Header */}
@@ -196,10 +198,10 @@ export default async function Page({ params }) {
                   <Image
                     src={expo.coverUrl}
                     alt={expo.coverAlt}
+                    priority 
                     fill
                     className="object-contain"
                     sizes="(max-width: 768px) 100vw, 1200px"
-                    priority
                   />
                 </div>
               </div>

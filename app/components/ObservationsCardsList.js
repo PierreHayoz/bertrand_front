@@ -1,5 +1,5 @@
 'use client'
-import { Fragment } from "react";
+import { Fragment, useMemo } from "react";
 import Citation from "./Citation";
 import ObservationsCards from "./ObservationsCards";
 import { useModal } from "@/context/ModalContext";
@@ -7,10 +7,13 @@ import { useModal } from "@/context/ModalContext";
 export default function ObservationsCardsList({ 
   oeuvres, citation }) {
   const { openModal } = useModal()
-  console.log(citation)
+  const sorted = useMemo(
+  () => [...oeuvres].sort((a, b) => new Date(b.date) - new Date(a.date)),
+  [oeuvres]
+);
   return (
     <div className="bg-stone-950 grid grid-cols-4 gap-2 relative z-10  md:gap-4  pt-8 md:pt-16">
-      {oeuvres
+      {sorted
         .sort((a, b) => {
           const dateA = new Date(a.date); // Convertir la date de A en objet Date
           const dateB = new Date(b.date); // Convertir la date de B en objet Date
@@ -20,7 +23,6 @@ export default function ObservationsCardsList({
           <Fragment key={oeuvre.id}>
             <ObservationsCards
               onClick={() => {
-                console.log("🟢 Click sur :", oeuvre);
                 openModal(oeuvre);
               }}
 

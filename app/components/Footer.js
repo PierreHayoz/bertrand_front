@@ -2,12 +2,17 @@ import FooterNav from "./FooterNav";
 import { ArrowRight } from "lucide-react";
 
 async function getFooter() {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/footer?populate=*`,
-    { cache: "no-store" }
-  );
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/footer?populate=*`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    console.error("Footer fetch failed:", e.message);
+    return null;
+  }
 }
 
 export default async function Footer() {
@@ -19,7 +24,7 @@ export default async function Footer() {
   const contact = footer.Contact;
 
   return (
-    <footer className="bg-stone-200 sticky bottom-0 z-0 border-t border-stone-300/70">
+    <footer className="bg-stone-200 md:sticky bottom-0 z-0 border-t border-stone-300/70">
       <div className="mx-auto max-w-7xl px-8 md:px-16 py-16 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
           {/* Col 1: Texte / statement */}
@@ -43,6 +48,7 @@ export default async function Footer() {
       relative
       overflow-hidden
       px-3 py-1
+      text-sm
       border border-stone-600
       rounded-full
       flex items-center

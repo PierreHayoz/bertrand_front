@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export default function PageHeaderAnimated({
   eyebrow,
@@ -8,7 +9,18 @@ export default function PageHeaderAnimated({
   description,
 }) {
   const reduce = useReducedMotion();
+const [active, setActive] = useState(false);
 
+  useEffect(() => {
+  if (window.__isCurtainDone) { setActive(true); return; }
+  const handler = () => setActive(true);
+  window.addEventListener("curtain:done", handler, { once: true });
+  const fallback = setTimeout(() => setActive(true), 2000);
+  return () => {
+    window.removeEventListener("curtain:done", handler);
+    clearTimeout(fallback);
+  };
+}, []);
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -21,11 +33,10 @@ export default function PageHeaderAnimated({
   };
 
   const item = {
-    hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
+    hidden: { opacity: 0, y: 14 },
     show: {
       opacity: 1,
       y: 0,
-      filter: "blur(0px)",
       transition: {
         duration: 0.7,
         ease: [0.16, 1, 0.3, 1],
@@ -37,7 +48,7 @@ export default function PageHeaderAnimated({
     <motion.header
       variants={container}
       initial={reduce ? "show" : "hidden"}
-      animate="show"
+      animate={active ? "show" : "hidden"}
       className="max-w-2xl"
     >
       <motion.div

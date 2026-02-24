@@ -1,21 +1,15 @@
 import OeuvresLayout from "../components/OeuvresLayout";
 import { getOeuvres } from "../lib/oeuvres";
 import { getExpositions } from "../lib/expositions";
-import { Playfair_Display } from "next/font/google";
 import { Suspense } from "react";
-import GridSkeleton from "./GridSkeleton";
 
 const PAGE_SIZE = 24;
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-});
+
+
 export default async function Page({ searchParams }) {
   const oeuvres = (await getOeuvres()) ?? [];
   const expositions = (await getExpositions()) ?? [];
 
-  // ✅ Next.js 15: searchParams est une Promise -> on await avant d'accéder aux props
   const sp = await searchParams;
 
   const pageRaw = Array.isArray(sp?.page) ? sp.page[0] : sp?.page;
@@ -38,14 +32,16 @@ export default async function Page({ searchParams }) {
   const nextExpo = pickNextExpo(expositions);
 
   return (
-  <OeuvresLayout
-    latest={latest}
-    rest={rest}
-    total={total}
-    page={page}
-    totalPages={totalPages}
-    nextExpo={nextExpo}
-  />
+  <Suspense fallback={<div className="min-h-screen bg-stone-950" />}>
+      <OeuvresLayout
+        latest={latest}
+        rest={rest}
+        total={total}
+        page={page}
+        totalPages={totalPages}
+        nextExpo={nextExpo}
+      />
+    </Suspense>
   );
 }
 

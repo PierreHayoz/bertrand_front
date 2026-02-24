@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { getExpositions } from "../lib/expositions";
 import ExploreCta from "../components/ExploreCTA";
 import { ArrowRight } from "lucide-react";
 import PageHeaderAnimated from "../components/PageHeaderAnimated";
 import Reveal from "../components/Reveal";
+import TransitionLink from "../components/TransitionLink";
 
 // Helpers dates (évite les surprises)
 function toDate(value) {
@@ -137,7 +137,7 @@ export default async function Page() {
         />
 
         {/* À venir / En cours */}
-        <Reveal delay={0.3}>
+        <Reveal>
           <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
             <div className="flex items-end justify-between gap-6">
               <div>
@@ -168,7 +168,7 @@ export default async function Page() {
           </section>
         </Reveal>
         {/* Passées */}
-        <Reveal delay={0.3}>
+        <Reveal>
           <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
             <div className="flex items-end justify-between gap-6">
               <div>
@@ -321,9 +321,14 @@ function ExpoCard({ expo, status }) {
     </div>
   );
 
-  if (href) {
-    return <Link href={href}>{CardContent}</Link>;
-  }
+// Ligne ~230 dans votre ExpoCard
+if (href) {
+  return (
+    <TransitionLink href={href} label={expo.titre}> {/* ← ajouter label */}
+      {CardContent}
+    </TransitionLink>
+  );
+}
 
   return CardContent;
 }

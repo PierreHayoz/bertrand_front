@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { Expand, Minimize, Minimize2 } from "lucide-react";
+import { Minimize2 } from "lucide-react";
 
 export default function Modal({
   isOpen,
@@ -49,7 +49,7 @@ export default function Modal({
           {/* Bloc centré */}
           <div className="flex flex-col items-start">
             {/* IMAGE */}
-            <motion.div
+            <motion.button
               onClick={onClose}
               onHoverStart={() => setIsHovered(true)}
               onHoverEnd={() => setIsHovered(false)}
@@ -58,14 +58,12 @@ export default function Modal({
             >
               <Image
                 src={src}
-                width={1200}
-                height={1200}
+                width={500}
+                height={500}
                 alt={title || "Œuvre"}
                 priority
-                className="
-                  w-auto h-auto
-                  max-h-[calc(100vh-18rem)]
-                "
+                loading="eager"
+                className="w-auto h-auto max-h-[calc(100vh-18rem)]"
               />
 
               <AnimatePresence>
@@ -78,12 +76,12 @@ export default function Modal({
                     className="absolute inset-0 flex justify-center items-center"
                   >
                     <div className="backdrop-blur bg-stone-200 text-stone-950 px-6 py-6 rounded-full">
-                      <Minimize2 size={20} strokeWidth={1.4}/>
+                      <Minimize2 size={20} strokeWidth={1.4} />
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </motion.button>
 
             {/* META — sous l’image, aligné à gauche */}
             <div className="mt-4">

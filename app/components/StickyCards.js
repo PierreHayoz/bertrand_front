@@ -25,7 +25,7 @@ export default function StickyCards({
         </div>
 
         <div className="grid grid-cols-4  pt-4">
-          <div onClick={onClick} className="md:col-span-2 col-span-4 cursor-pointer">
+          <button onClick={onClick} className="md:col-span-2 col-span-4 cursor-pointer">
             <ImageHover
               src={src}
               text="afficher"
@@ -34,7 +34,7 @@ export default function StickyCards({
               numero={numero}
               title={title}
             />
-          </div>
+          </button>
 
           <p className="hidden md:block text-end text-sm col-span-2 text-stone-400">
             {date}

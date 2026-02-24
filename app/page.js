@@ -40,15 +40,14 @@ export default async function Home() {
 
         {/* Sticky selection */}
         <section className="pb-20 md:pb-28">
-          <Reveal delay={0.3}>
+          <Reveal>
             <SectionHeader
+          
               eyebrow="Sélection"
               title="À parcourir lentement"
               description="Une série d’œuvres mises en avant — cliquez pour ouvrir la fiche."
               align="left"
             />
-          </Reveal>
-          <Reveal delay={0.3}>
             <div className="mt-10 md:mt-14 border-t border-stone-900/80 pt-10">
               <StickyCardsList oeuvres={homepage.firstSelection} />
             </div>
@@ -63,7 +62,7 @@ export default async function Home() {
         </section>
 
         {/* Observations */}
-        <section className="pb-20 md:pb-28">
+        <section className=" md:pb-28">
           <SectionHeader
             eyebrow="Observations"
             title="Dernières pièces"

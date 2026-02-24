@@ -12,11 +12,11 @@ export default function ObservationsCards({
   
   return (
     <div className="col-span-4 md:col-span-1">
-      <Reveal fromY={40} duration={2}>
+      <Reveal fromY={20} duration={0.8}>
         <p className="text-stone-400 text-sm hidden md:inline-block">{date}</p>
-        <div onClick={onClick} className="">
+        <button onClick={onClick}>
         <ImageHover date={date} format={format} numero={numero} title={title} src={src} text="afficher" />
-        </div>
+        </button>
         <div className="flex justify-between">
           <div className="">
             <span className="text-stone-400 text-sm pr-1 w-8">{numero}.</span>

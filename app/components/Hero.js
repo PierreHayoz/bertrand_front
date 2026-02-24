@@ -1,36 +1,42 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useTransitionState } from "next-transition-router";
+import { useEffect, useState } from "react";
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
+  },
+};
 
+const item = {
+  hidden: { opacity: 0, y: 14 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 export default function HeroMainClient({
   title,
   subtitle,
 }) {
   const reduce = useReducedMotion();
+  const [active, setActive] = useState(false);
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.06, delayChildren: 0.05 },
-    },
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 14, filter: "blur(6px)" },
-    show: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-
+  useEffect(() => {
+    if (window.__isCurtainDone) { setActive(true); return; }
+    const handler = () => setActive(true);
+    window.addEventListener("curtain:done", handler, { once: true });
+    return () => window.removeEventListener("curtain:done", handler);
+  }, []);
   return (
     <motion.div
       variants={container}
       initial={reduce ? "show" : "hidden"}
-      animate="show"
+      animate={active ? "show" : "hidden"}
       className="grid grid-cols-3 md:grid-cols-12 gap-y-10 md:gap-y-0"
     >
       <div className="col-span-3 md:col-span-7">

@@ -10,7 +10,6 @@ export async function getAbout() {
 
   const res = await fetchStrapi(url);
   const a = res?.data;
-  console.log(a)
   if (!a) return null;
 
   return {

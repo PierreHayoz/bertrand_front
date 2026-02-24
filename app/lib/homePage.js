@@ -1,5 +1,9 @@
-import { fetchStrapi, getImageUrl } from "./strapi";
-
+import { fetchStrapi } from "./strapi";
+const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
+function toAbsoluteUrl(url) {
+  if (!url || !STRAPI_URL) return null;
+  return url.startsWith("http") ? url : `${STRAPI_URL}${url}`;
+}
 export async function getHomepage() {
   const base = process.env.NEXT_PUBLIC_STRAPI_URL;
   if (!base) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
@@ -20,7 +24,6 @@ export async function getHomepage() {
   // ✅ Strapi v5: champs DIRECTEMENT dans res.data
   const h = res?.data;
   if (!h) return null;
-console.log("RAW h.citation =", h.citation);
   return {
     hero: {
       title: h.Hero?.title ?? null,
@@ -51,14 +54,14 @@ console.log("RAW h.citation =", h.citation);
  */
 function mapOeuvres(items) {
   if (!Array.isArray(items)) return [];
-
   return items.map((o) => ({
     id: o?.id ?? null,
     titre: o?.Titre ?? null,
     format: o?.Format ?? null,
     numero: o?.numero ?? null,
     date: o?.date ?? null,
-    imageUrl: getImageUrl(o?.Image),
+    imageUrl: toAbsoluteUrl(o?.Image?.formats?.small?.url ?? o?.Image?.url),
+    imageUrlModal: toAbsoluteUrl(o?.Image?.formats?.medium?.url ?? o?.Image?.url),
     imageAlt: o?.Image?.alternativeText ?? null,
   }));
 }

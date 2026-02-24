@@ -73,35 +73,10 @@ body {
 }
 
 
-/* ===== Page Transitions (next-transition-router) ===== */
-
-.page-transition-overlay{
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 500;
-
-  background: rgba(12,10,9,1); /* stone-950 vibe */
-  opacity: 0;
-  transform: translateY(8px);
-  transition:
-    opacity 350ms cubic-bezier(.2,.8,.2,1),
-    transform 350ms cubic-bezier(.2,.8,.2,1);
+@media (prefers-reduced-motion: reduce) {
+  .page-transition-curtain,
+  .curtain-label { transition: none; }
 }
-
-/* pendant la sortie (avant navigation) */
-html.is-leaving .page-transition-overlay{
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* optionnel: réduit l’anim si l’utilisateur préfère */
-@media (prefers-reduced-motion: reduce){
-  .page-transition-overlay{
-    transition: none;
-  }
-}
-
 
 
 html.lenis,

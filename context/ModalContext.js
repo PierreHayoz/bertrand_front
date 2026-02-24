@@ -17,10 +17,12 @@ export function ModalProvider({ children }) {
   const [current, setCurrent] = useState(null);
   const [instantClose, setInstantClose] = useState(false);
 
-  const openModal = useCallback((oeuvre /*, _list */) => {
+
+  const openModal = useCallback(async (oeuvre) => {
     setInstantClose(false);
     setCurrent(oeuvre ?? null);
     setIsOpen(true);
+
   }, []);
 
   const closeModal = useCallback(() => {
@@ -50,7 +52,7 @@ export function ModalProvider({ children }) {
             isOpen={isOpen}
             onClose={closeModal}
             instantClose={instantClose}
-            src={current.imageUrl}
+            src={current.imageUrlModal}
             title={current.titre}
             date={current.date ? new Date(current.date).getFullYear() : null}
             format={current.format}
