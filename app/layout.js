@@ -34,14 +34,12 @@ export default function RootLayout({ children }) {
       <body
         className={` ${gsf.className} antialiased bg-stone-950`}
       >
+        <Header />
 
-        <Providers> {/* ← wrapper tout */}
-
+        <Providers>
           <div className="z-[10] relative min-h-screen bg-stone-950">
-            <Header />
             <Suspense fallback={null}>
               <ModalProvider>
-
                 <SmoothScrollProvider>{children}</SmoothScrollProvider>
               </ModalProvider>
             </Suspense>
