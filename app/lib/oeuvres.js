@@ -25,14 +25,21 @@ function mapOeuvre(o) {
 export async function getOeuvres() {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
-  const res = await fetch(`${STRAPI_URL}/api/oeuvres?populate=Image`, {
-    next: { revalidate: 0 }
-  });
+  let page = 1;
+  let allOeuvres = [];
+  let total = Infinity;
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Strapi /oeuvres failed (${res.status}): ${text.slice(0, 200)}`);
+  while (allOeuvres.length < total) {
+    const res = await fetch(
+`${STRAPI_URL}/api/oeuvres?populate=Image&pagination[page]=${page}&pagination[pageSize]=100&sort=date:desc`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) throw new Error(`Strapi error ${res.status}`);
+    const json = await res.json();
+    total = json.meta.pagination.total;
+    allOeuvres = [...allOeuvres, ...json.data.map(mapOeuvre)];
+    page++;
   }
-  const json = await res.json();
-  return (json?.data ?? []).map(mapOeuvre);
+
+  return allOeuvres;
 }

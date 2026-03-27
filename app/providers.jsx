@@ -154,6 +154,7 @@ export function Providers({ children }) {
           zIndex: 9000,
           pointerEvents: "none",
           background: "#0c0a09",
+
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
