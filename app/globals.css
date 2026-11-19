@@ -185,6 +185,29 @@ html:not([data-js]) .curtain {
   overflow: hidden;
 }
 
+/*
+ * Survol des œuvres : l'œuvre survolée reste intacte, les autres de la grille s'estompent.
+ * Avec la pastille personnalisée active, le curseur natif est masqué sur les œuvres.
+ */
+@media (hover: hover) and (pointer: fine) {
+  [data-dim] img {
+    transition: opacity 0.7s var(--ease-out-expo), filter 0.7s var(--ease-out-expo);
+  }
+  [data-dim]:has([data-cursor]:hover) li:not(:has([data-cursor]:hover)) img {
+    opacity: 0.35;
+    filter: saturate(0.6);
+  }
+  [data-dim] figcaption {
+    transition: opacity 0.7s var(--ease-out-expo);
+  }
+  [data-dim]:has([data-cursor]:hover) li:not(:has([data-cursor]:hover)) figcaption {
+    opacity: 0.45;
+  }
+  html[data-cursor="on"] [data-cursor] {
+    cursor: none;
+  }
+}
+
 /* En-tête : opaque par défaut, transparent en haut de page si le navigateur sait le gérer */
 @keyframes header-solid {
   to {

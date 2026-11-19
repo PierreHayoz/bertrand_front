@@ -64,7 +64,7 @@ function ExpoList({ expos }) {
                   height={expo.cover.height}
                   alt=""
                   sizes="(max-width: 768px) 88px, 16vw"
-                  className="h-auto w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
+                  className="h-auto w-full"
                 />
               ) : (
                 <div className="aspect-3/4" />

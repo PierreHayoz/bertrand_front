@@ -33,6 +33,7 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
       className={`group block w-full overflow-hidden bg-surface ${className}`}
       aria-label={`Agrandir « ${oeuvre.titre} »${oeuvre.numero ? `, n° ${oeuvre.numero}` : ""}`}
       data-oeuvre={oeuvre.id}
+      data-cursor="Voir"
     >
       <Image
         src={src}
@@ -41,7 +42,7 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
         alt={alt}
         sizes={sizes}
         priority={priority}
-        className={`h-auto w-full transition-[scale] duration-1000 ease-out-expo group-hover:scale-[1.035] ${imgClassName}`}
+        className={`h-auto w-full ${imgClassName}`}
       />
     </button>
   );
@@ -51,7 +52,7 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
 export function ArtworkGrid({ oeuvres, sizes = "(max-width: 768px) 50vw, 25vw" }) {
   if (!oeuvres?.length) return null;
   return (
-    <ul className="grid grid-cols-2 md:grid-cols-4 items-start gap-x-4 gap-y-14 md:gap-x-8 md:gap-y-24">
+    <ul data-dim className="grid grid-cols-2 md:grid-cols-4 items-start gap-x-4 gap-y-14 md:gap-x-8 md:gap-y-24">
       {oeuvres.map((o) => (
         <li key={o.id}>
           <figure>

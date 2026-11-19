@@ -8,6 +8,7 @@ import { ModalProvider } from "@/context/ModalContext";
 import SmoothScrollProvider from "./lenis-providers";
 import { Providers } from "./providers";
 import Motion from "./components/Motion";
+import Cursor from "./components/Cursor";
 import { getContact } from "./lib/content";
 
 const body = Google_Sans_Flex({
@@ -90,6 +91,7 @@ export default async function RootLayout({ children }) {
             </Suspense>
           </div>
           <Footer contact={contact} />
+          <Cursor />
         </Providers>
       </body>
     </html>
