@@ -1,46 +1,33 @@
-import { fetchStrapi, toImage } from "./strapi";
+import { populateMedia, strapi, toImage } from "./strapi";
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
-// Plus récentes d'abord ; à date égale, le numéro le plus élevé d'abord.
-const SORT = "sort[0]=date:desc&sort[1]=numero:desc";
+// Plus récentes d'abord ; à date égale, numéro le plus élevé d'abord.
+const QUERY = [
+  "sort[0]=date:desc",
+  "sort[1]=numero:desc",
+  "fields[0]=numero",
+  "fields[1]=titre",
+  "fields[2]=format",
+  "fields[3]=date",
+  populateMedia("image"),
+].join("&");
 
-export function mapOeuvre(o) {
-  const titre = o?.titre ?? null;
+function mapOeuvre(o) {
+  const titre = o.titre ?? "Sans titre";
   return {
-    id: o.documentId ?? o.id,
+    id: o.documentId,
     numero: o.numero ?? null,
     titre,
     format: o.format ?? null,
-    date: o.date ?? null,
-    year: o.date ? new Date(o.date).getFullYear() : null,
-    image: toImage(o.image, `${titre ?? "Œuvre"}${o.numero ? ` (n° ${o.numero})` : ""}`),
+    year: o.date ? Number(o.date.slice(0, 4)) : null,
+    image: toImage(o.image, `${titre}${o.numero ? `, œuvre n° ${o.numero}` : ""}`),
   };
 }
 
-export async function getOeuvres() {
-  if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
-
-  let page = 1;
-  let all = [];
-  let total = Infinity;
-
-  while (all.length < total) {
-    const json = await fetchStrapi(
-      `${STRAPI_URL}/api/oeuvres?populate=image&${SORT}&pagination[page]=${page}&pagination[pageSize]=100`
-    );
-    total = json.meta.pagination.total;
-    all = all.concat(json.data.map(mapOeuvre));
-    page++;
-    if (!json.data.length) break;
-  }
-
-  return all;
-}
-
-export async function getLatestOeuvres(limit = 9) {
-  if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
-  const json = await fetchStrapi(
-    `${STRAPI_URL}/api/oeuvres?populate=image&${SORT}&pagination[pageSize]=${limit}`
-  );
-  return (json?.data ?? []).map(mapOeuvre);
+/** Tranche d'œuvres (offset/limit) + total, en une seule requête. */
+export async function getOeuvres({ start = 0, limit = 24 } = {}) {
+  const json = await strapi(`/oeuvres?${QUERY}&pagination[start]=${start}&pagination[limit]=${limit}`);
+  return {
+    items: (json?.data ?? []).map(mapOeuvre),
+    total: json?.meta?.pagination?.total ?? 0,
+  };
 }

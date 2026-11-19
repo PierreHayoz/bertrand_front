@@ -1,42 +1,44 @@
+import "server-only";
+
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
 
+/** Tag de cache commun à tout le contenu Strapi (invalidé par /api/revalidate). */
+export const STRAPI_TAG = "strapi";
+
 /**
- * Fetch Strapi + JSON + erreurs explicites
+ * Requête Strapi mise en cache : rafraîchie au plus toutes les 5 minutes,
+ * et immédiatement quand Strapi appelle le webhook /api/revalidate.
  */
-export async function fetchStrapi(url) {
+export async function strapi(path) {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
-  const res = await fetch(url, { next: { revalidate: 0 } });
-  const text = await res.text();
-
-  let json = null;
-  try {
-    json = text ? JSON.parse(text) : null;
-  } catch (e) {
-    console.error("Strapi JSON parse error:", e);
-  }
+  const res = await fetch(`${STRAPI_URL}/api${path}`, {
+    next: { revalidate: 300, tags: [STRAPI_TAG] },
+  });
 
   if (!res.ok) {
-    const msg = json?.error?.message || text?.slice(0, 200) || `Request failed: ${res.status}`;
-    throw new Error(`Strapi error (${res.status}): ${msg}`);
+    const body = await res.text().catch(() => "");
+    throw new Error(`Strapi ${res.status} on ${path}: ${body.slice(0, 200)}`);
   }
-
-  return json;
+  return res.json();
 }
 
 function absolute(url) {
-  if (!url || !STRAPI_URL) return null;
+  if (!url) return null;
   return url.startsWith("http") ? url : `${STRAPI_URL}${url}`;
 }
 
-export function getImageUrl(image, format = "small") {
-  if (!image) return null;
-  return absolute(image?.formats?.[format]?.url ?? image?.url ?? null);
+/** Champs utiles d'un média (évite de rapatrier toutes les métadonnées). */
+export const MEDIA_FIELDS = ["url", "width", "height", "formats", "alternativeText"]
+  .map((f, i) => `[fields][${i}]=${f}`);
+
+export function populateMedia(name) {
+  return MEDIA_FIELDS.map((f) => `populate[${name}]${f}`).join("&");
 }
 
 /**
- * Média Strapi -> image prête pour next/image, en conservant les proportions réelles.
- * `src` = format courant (grilles), `srcLarge` = grand format (visionneuse, couvertures).
+ * Média Strapi -> image pour next/image, proportions réelles conservées.
+ * `src` sert aux vignettes, `srcLarge` à la visionneuse et aux grands visuels.
  */
 export function toImage(media, fallbackAlt = "") {
   if (!media?.url) return null;

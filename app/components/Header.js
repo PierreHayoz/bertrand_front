@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import TransitionLink from "./TransitionLink";
-import { useScrolledPast } from "../lib/useClientState";
 import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
@@ -16,7 +15,6 @@ export default function Header({ contact }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [menuPath, setMenuPath] = useState(pathname);
-  const scrolled = useScrolledPast(24);
 
   // Ferme le menu quand la page change
   if (menuPath !== pathname) {
@@ -27,26 +25,21 @@ export default function Header({ contact }) {
   const isActive = (href) => pathname?.startsWith(href);
 
   useEffect(() => {
+    if (!open) return;
     const lenis = globalThis.__lenis;
-    if (open) {
-      lenis?.stop?.();
-      document.documentElement.style.overflow = "hidden";
-    } else {
-      lenis?.start?.();
-      document.documentElement.style.overflow = "";
-    }
+    lenis?.stop?.();
+    document.documentElement.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
     return () => {
-      lenis?.start?.();
+      window.removeEventListener("keydown", onKey);
       document.documentElement.style.overflow = "";
+      lenis?.start?.();
     };
   }, [open]);
 
   return (
-    <header
-      className={`fixed top-0 z-100 w-full transition-[background-color,border-color] duration-500 border-b ${
-        scrolled || open ? "bg-bg/90 backdrop-blur-md border-line" : "bg-transparent border-transparent"
-      }`}
-    >
+    <header className={`site-header fixed top-0 z-100 w-full border-b ${open ? "bg-bg!" : ""}`}>
       <div className="container-site h-16 md:h-20 flex items-center justify-between gap-6">
         <TransitionLink href="/" className="font-serif text-2xl md:text-[1.75rem] leading-none text-ink">
           Bertrand Kolly
@@ -70,17 +63,18 @@ export default function Header({ contact }) {
         </nav>
 
         <button
+          type="button"
           className="md:hidden relative z-130 t-label text-ink py-2"
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={open}
+          aria-controls="menu-mobile"
         >
           {open ? "Fermer" : "Menu"}
         </button>
       </div>
 
-      {open && (
-        <div className="md:hidden fixed inset-0 z-120 bg-bg h-dvh flex flex-col">
+      {open ? (
+        <div id="menu-mobile" className="md:hidden fixed inset-0 z-120 bg-bg h-dvh flex flex-col">
           <nav className="flex-1 overflow-y-auto container-site pt-28 pb-8" aria-label="Navigation mobile">
             {[{ href: "/", label: "Accueil" }, ...NAV].map((item) => {
               const active = item.href === "/" ? pathname === "/" : isActive(item.href);
@@ -114,7 +108,7 @@ export default function Header({ contact }) {
             <ThemeToggle />
           </div>
         </div>
-      )}
+      ) : null}
     </header>
   );
 }

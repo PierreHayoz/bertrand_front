@@ -86,7 +86,7 @@ function CurtainController({ curtainRef, labelRef, subtitleRef }) {
       });
 
     return () => tl.kill();
-  }, [isReady]);
+  }, [isReady, curtainRef, labelRef, subtitleRef]);
 
   return null;
 }
@@ -100,21 +100,28 @@ export function Providers({ children }) {
 
   const curtainSubtitleRef = useRef(null); // valeur live, pas le state
 
-  if (typeof window !== "undefined") {
-    window.__setCurtainLabel = (text) => {
+  // Points d'entrée utilisés par TransitionLink pour annoncer le titre de la page suivante
+  useEffect(() => {
+    const w = globalThis;
+    w.__setCurtainLabel = (text) => {
       if (labelRef.current) labelRef.current.textContent = text;
     };
-    window.__setCurtainSubtitle = (sub) => {
+    w.__setCurtainSubtitle = (sub) => {
       curtainSubtitleRef.current = sub;
       if (subtitleRef.current) subtitleRef.current.textContent = sub ?? "";
     };
-  }
+    return () => {
+      delete w.__setCurtainLabel;
+      delete w.__setCurtainSubtitle;
+    };
+  }, []);
 
   return (
     <TransitionRouter
       auto
       leave={(next) => {
         window.__isCurtainDone = false;
+        delete document.documentElement.dataset.ready; // rejoue les intros à la levée du rideau
         const tl = gsap.timeline({ onComplete: next })
           .fromTo(curtainRef.current,
             { y: "-100%" },

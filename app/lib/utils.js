@@ -1,9 +1,7 @@
 export function toPlainText(node) {
   if (!node) return "";
   if (typeof node === "string" || typeof node === "number") return String(node);
-  if (Array.isArray(node)) {
-    return node.map(toPlainText).join(" ").replace(/\s+/g, " ").trim();
-  }
+  if (Array.isArray(node)) return node.map(toPlainText).join(" ").replace(/\s+/g, " ").trim();
   if (typeof node === "object") {
     if ("text" in node) return toPlainText(node.text);
     if ("children" in node) return toPlainText(node.children);
@@ -19,16 +17,15 @@ export function toDate(value) {
 
 const fmt = (d, opts) => d.toLocaleDateString("fr-CH", { timeZone: "Europe/Zurich", ...opts });
 
-/** « 12 septembre — 10 octobre 2026 », ou les deux années si elles diffèrent. */
+/** « 12 septembre — 10 octobre 2026 » (années répétées seulement si elles diffèrent). */
 export function formatDateRange(debut, fin) {
   const d1 = toDate(debut);
   if (!d1) return "";
-  const d2 = toDate(fin);
   const full = { day: "numeric", month: "long", year: "numeric" };
+  const d2 = toDate(fin);
   if (!d2) return fmt(d1, full);
   const sameYear = d1.getFullYear() === d2.getFullYear();
-  const start = fmt(d1, sameYear ? { day: "numeric", month: "long" } : full);
-  return `${start} — ${fmt(d2, full)}`;
+  return `${fmt(d1, sameYear ? { day: "numeric", month: "long" } : full)} — ${fmt(d2, full)}`;
 }
 
 /** "current" | "upcoming" | "past" | "unknown" */
@@ -42,28 +39,6 @@ export function getExpoStatus(expo, now = new Date()) {
   if (now < s) return "upcoming";
   if (now <= e) return "current";
   return "past";
-}
-
-export const STATUS_LABEL = {
-  current: "En cours",
-  upcoming: "À venir",
-  past: "Passée",
-  unknown: "",
-};
-
-/** Exposition en cours ou la prochaine ; à défaut la plus récente passée. */
-export function pickFeaturedExpo(expos = []) {
-  const now = new Date();
-  const withStatus = expos.map((e) => ({ ...e, status: getExpoStatus(e, now) }));
-  const live = withStatus
-    .filter((e) => e.status === "current" || e.status === "upcoming")
-    .sort((a, b) => toDate(a.dateDebut) - toDate(b.dateDebut));
-  if (live.length) return live[0];
-  return (
-    withStatus
-      .filter((e) => e.status === "past")
-      .sort((a, b) => toDate(b.dateDebut) - toDate(a.dateDebut))[0] ?? null
-  );
 }
 
 export function place(expo) {

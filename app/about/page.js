@@ -1,9 +1,8 @@
 import Image from "next/image";
 import BlocksRenderer from "../components/BlocksRenderer";
 import Gallery from "../components/Gallery";
-import Reveal from "../components/Reveal";
-import { CtaBand, PageHeader, Quote } from "../components/ui";
-import { getAbout } from "../lib/about";
+import { CtaBand, EXPLORE, ExploreLinks, PageHeader, Quote } from "../components/ui";
+import { getAbout } from "../lib/content";
 
 export const metadata = {
   title: "À propos",
@@ -20,31 +19,32 @@ export default async function AboutPage() {
 
       <section className="container-site pb-8 md:pb-16 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-12">
         {about.image ? (
-          <Reveal className="md:col-span-5">
-            <figure className="bg-surface md:sticky md:top-28">
-              <Image
-                src={about.image.srcLarge}
-                width={about.image.width}
-                height={about.image.height}
-                alt={about.image.alt}
-                priority
-                sizes="(max-width: 768px) 100vw, 40vw"
-                className="h-auto w-full"
-              />
-            </figure>
-          </Reveal>
+          <figure className="md:col-span-5 md:sticky md:top-28 self-start bg-surface">
+            <Image
+              src={about.image.srcLarge}
+              width={about.image.width}
+              height={about.image.height}
+              alt={about.image.alt}
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="h-auto w-full"
+            />
+          </figure>
         ) : null}
-
-        <Reveal className="md:col-span-6 md:col-start-7" delay={0.1}>
+        <div className="reveal md:col-span-6 md:col-start-7">
           <BlocksRenderer blocks={about.contenu} lead />
-        </Reveal>
+        </div>
       </section>
 
-      <Quote text={about.citation.text} auteur={about.citation.auteur} />
+      <Quote quote={about.quote} />
 
       <Gallery images={about.gallery} label="Atelier" title="Au travail" />
 
       <CtaBand cta={about.cta} />
+
+      <div className="pt-24 md:pt-36">
+        <ExploreLinks links={[EXPLORE.oeuvres, EXPLORE.expositions]} />
+      </div>
     </main>
   );
 }

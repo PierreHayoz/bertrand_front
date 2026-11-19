@@ -78,7 +78,6 @@
     font-size: 1.0625rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    transition: background-color 0.4s var(--ease-out-expo), color 0.4s var(--ease-out-expo);
   }
 
   ::selection {
@@ -151,6 +150,183 @@
   &[aria-current="page"] {
     background-size: 100% 1px;
   }
+}
+
+/* ------------------------------------------------------------------
+   Intro des en-têtes : joue quand le rideau de transition se lève
+   (html[data-ready] est posé par le rideau, avec un filet de sécurité).
+------------------------------------------------------------------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+}
+html[data-js]:not([data-ready]) .intro > * {
+  opacity: 0;
+}
+html[data-ready] .intro > * {
+  animation: rise 0.9s var(--ease-out-expo) both;
+}
+html[data-ready] .intro > :nth-child(2) { animation-delay: 0.08s; }
+html[data-ready] .intro > :nth-child(3) { animation-delay: 0.16s; }
+html[data-ready] .intro > :nth-child(4) { animation-delay: 0.24s; }
+
+/* ------------------------------------------------------------------
+   Effets de défilement : CSS natif (scroll-driven animations),
+   exécutés hors du thread JS. Sans prise en charge ou avec
+   « réduire les animations », tout est simplement visible et immobile.
+------------------------------------------------------------------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 2rem;
+  }
+}
+@keyframes unveil {
+  from {
+    clip-path: inset(100% 0 0 0);
+    scale: 1.08;
+  }
+}
+@keyframes drift {
+  from { translate: 0 3.5rem; }
+  to { translate: 0 -3.5rem; }
+}
+@keyframes recede {
+  to {
+    scale: 0.92;
+  }
+}
+@keyframes dim {
+  to {
+    opacity: 0.35;
+  }
+}
+@keyframes light-up {
+  to { opacity: 1; }
+}
+@keyframes header-solid {
+  to {
+    background-color: color-mix(in srgb, var(--bg) 90%, transparent);
+    border-color: var(--line);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* En-tête : opaque par défaut, transparent en haut de page si l'effet est pris en charge */
+.site-header {
+  background-color: color-mix(in srgb, var(--bg) 90%, transparent);
+  border-color: var(--line);
+  backdrop-filter: blur(12px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .site-header {
+      background-color: transparent;
+      border-color: transparent;
+      backdrop-filter: none;
+      animation: header-solid linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 6rem;
+    }
+
+    /* Apparition au défilement */
+    .reveal {
+      animation: fade-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 70%;
+    }
+
+    /* Dévoilement d'une image, de bas en haut */
+    .unveil {
+      overflow: hidden;
+    }
+    .unveil > * {
+      animation: unveil linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 35%;
+    }
+
+    /* Colonnes paires qui glissent à contre-temps (fonctionne en 2 comme en 4 colonnes) */
+    .drift-grid > :nth-child(even) {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+
+    /* Pile de cartes : chaque carte recule quand la suivante la recouvre */
+    .stack {
+      view-timeline: --stack block;
+    }
+    .stack-card > .stack-inner {
+      transform-origin: 50% 0;
+      animation: recede linear both;
+      animation-timeline: --stack;
+      animation-range: exit-crossing calc(var(--i) / var(--n) * 100%)
+        exit-crossing calc((var(--i) + 1) / var(--n) * 100%);
+    }
+    /* l'œuvre recouverte s'efface (le fond de la carte reste opaque) */
+    .stack-card > .stack-inner img {
+      animation: dim linear both;
+      animation-timeline: --stack;
+      animation-range: exit-crossing calc(var(--i) / var(--n) * 100%)
+        exit-crossing calc((var(--i) + 1) / var(--n) * 100%);
+    }
+    .stack-card:last-child > .stack-inner,
+    .stack-card:last-child > .stack-inner img {
+      animation: none;
+    }
+
+    /* Citation dont les mots s'allument au fil du défilement */
+    .words {
+      view-timeline: --words block;
+    }
+    .words .w {
+      opacity: 0.14;
+      animation: light-up linear both;
+      animation-timeline: --words;
+      animation-range: cover calc(18% + var(--i) / var(--n) * 38%)
+        cover calc(22% + (var(--i) + 1) / var(--n) * 38%);
+    }
+  }
+}
+
+/* Visionneuse (<dialog> natif : couche supérieure, focus piégé, Échap) */
+.viewer {
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--bg);
+  color: var(--ink);
+  opacity: 0;
+  transition:
+    opacity 0.35s var(--ease-out-expo),
+    overlay 0.35s allow-discrete,
+    display 0.35s allow-discrete;
+}
+.viewer[open] {
+  opacity: 1;
+  @starting-style {
+    opacity: 0;
+  }
+}
+.viewer::backdrop {
+  background: transparent;
+}
+@keyframes viewer-in {
+  from {
+    opacity: 0;
+    scale: 0.985;
+  }
+}
+.viewer-img {
+  animation: viewer-in 0.45s var(--ease-out-expo);
 }
 
 /* Lenis */

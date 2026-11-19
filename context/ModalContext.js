@@ -1,10 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
-import { AnimatePresence } from "framer-motion";
 import { usePathname, useSearchParams } from "next/navigation";
-import Modal from "@/app/components/Modal";
+import Viewer from "@/app/components/Viewer";
 
 const ModalContext = createContext(null);
 export function useModal() {
@@ -16,13 +14,12 @@ export function ModalProvider({ children }) {
   const searchParams = useSearchParams();
   const routeKey = `${pathname}?${searchParams.toString()}`;
 
-  // { list, index } : la visionneuse permet de passer d'une œuvre à l'autre de la même liste
+  // { list, index } : on peut passer d'une œuvre à l'autre dans la même liste
   const [state, setState] = useState(null);
 
   const openModal = useCallback((oeuvre, list) => {
     const items = Array.isArray(list) && list.length ? list : [oeuvre];
-    const index = Math.max(0, items.findIndex((o) => o.id === oeuvre.id));
-    setState({ list: items, index });
+    setState({ list: items, index: Math.max(0, items.findIndex((o) => o.id === oeuvre.id)) });
   }, []);
 
   const closeModal = useCallback(() => setState(null), []);
@@ -39,29 +36,18 @@ export function ModalProvider({ children }) {
   }
 
   const value = useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
-  const current = state ? state.list[state.index] : null;
+  const many = (state?.list.length ?? 0) > 1;
 
   return (
     <ModalContext.Provider value={value}>
       {children}
-      {/* Portail dans <body> : la visionneuse passe au-dessus de l'en-tête fixe */}
-      {typeof document !== "undefined"
-        ? createPortal(
-      <AnimatePresence>
-        {current ? (
-          <Modal
-            key="viewer"
-            oeuvre={current}
-            position={state.list.length > 1 ? `${state.index + 1} / ${state.list.length}` : null}
-            onClose={closeModal}
-            onPrev={state.list.length > 1 ? () => step(-1) : null}
-            onNext={state.list.length > 1 ? () => step(1) : null}
-          />
-        ) : null}
-      </AnimatePresence>,
-            document.body
-          )
-        : null}
+      <Viewer
+        oeuvre={state ? state.list[state.index] : null}
+        position={many ? `${state.index + 1} / ${state.list.length}` : null}
+        onClose={closeModal}
+        onPrev={many ? () => step(-1) : null}
+        onNext={many ? () => step(1) : null}
+      />
     </ModalContext.Provider>
   );
 }
