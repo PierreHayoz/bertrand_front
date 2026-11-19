@@ -9,9 +9,6 @@ const PAGE_SIZE = 24;
 export default async function Page({ searchParams }) {
   const oeuvres = (await getOeuvres()) ?? [];
   const expositions = (await getExpositions()) ?? [];
-  console.log(oeuvres.id)
-
-  oeuvres.map((oeuvre, index)=> console.log(oeuvre.numero))
   const sp = await searchParams;
 
   const pageRaw = Array.isArray(sp?.page) ? sp.page[0] : sp?.page;

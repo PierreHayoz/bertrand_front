@@ -19,8 +19,7 @@ export async function getExpositionBySlug(slug) {
 
   const url =
     `${base}/api/expositions` +
-    `?publicationState=preview` +
-    `&filters[slug][$eq]=${encodeURIComponent(slug)}` +
+    `?filters[slug][$eq]=${encodeURIComponent(slug)}` +
     `&populate=*`;
 
   const res = await fetchStrapi(url);
@@ -28,31 +27,31 @@ export async function getExpositionBySlug(slug) {
   const e = list?.[0];
   if (!e) return null;
 
-  const coverUrl = getImageUrl(e.cover);
-  const galleryMedia = mediaArray(e.gallerie);
+  const coverUrl = getImageUrl(e.couverture);
+  const galleryMedia = mediaArray(e.galerie);
 
   const gallery = galleryMedia
     .map((m) => ({
       url: getImageUrl(m),
-      alt: mediaAlt(m, e.title ?? "Exposition"),
+      alt: mediaAlt(m, e.titre ?? "Exposition"),
       caption: mediaCaption(m),
     }))
     .filter((x) => !!x.url);
 
   return {
     id: e.id,
-    titre: e.title ?? null,
+    titre: e.titre ?? null,
     slug: e.slug ?? null,
     dateDebut: e.dateDebut ?? null,
     dateFin: e.dateFin ?? null,
     lieu: e.lieu ?? null,
     ville: e.ville ?? null,
     lien: e.lien ?? null,
-    isHighlighted: e.isHighlighted ?? false,
+    isHighlighted: e.miseEnAvant ?? false,
 
     // ✅ cover dédiée
     coverUrl: coverUrl ?? null,
-    coverAlt: e.coverAlt ?? (e.title ?? "Exposition"),
+    coverAlt: e.coverAlt ?? (e.titre ?? "Exposition"),
     coverCaption: e.coverCaption ?? null,
 
     // ✅ galerie
@@ -67,8 +66,7 @@ export async function getExpositions() {
 
   const url =
     `${base}/api/expositions` +
-    `?publicationState=preview` +
-    `&sort[0]=dateDebut:desc` +
+    `?sort[0]=dateDebut:desc` +
     `&populate=*`;
 
   const res = await fetchStrapi(url);
@@ -77,17 +75,17 @@ export async function getExpositions() {
 
   return list.map((e) => ({
     id: e.id,
-    titre: e.title ?? null,
+    titre: e.titre ?? null,
     slug: e.slug ?? null,
     dateDebut: e.dateDebut ?? null,
     dateFin: e.dateFin ?? null,
     lieu: e.lieu ?? null,
     ville: e.ville ?? null,
     lien: e.lien ?? null,
-    isHighlighted: e.isHighlighted ?? false,
+    isHighlighted: e.miseEnAvant ?? false,
 
     // ✅ cover pour les cards
-    coverUrl: getImageUrl(e.cover) ?? null,
-    coverAlt: e.coverAlt ?? (e.title ?? "Exposition"),
+    coverUrl: getImageUrl(e.couverture) ?? null,
+    coverAlt: e.coverAlt ?? (e.titre ?? "Exposition"),
   }));
 }

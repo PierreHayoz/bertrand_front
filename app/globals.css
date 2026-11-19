@@ -1,58 +1,89 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-@layer utilities {
+@import 'tailwindcss';
 
-  .clipPathBanner {
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
 
-      clip-path: polygon(26% 6%, 80% 19%, 79% 89%, 19% 72%);
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
 
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
 
-}
-html {
-  scrollbar-gutter: stable;
-}
-.masonry-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Colonne flexible */
-  gap: 1rem; /* Espacement entre les éléments */
-  width: 100%;
-}
-.grid-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Crée une grille fluide */
-  gap: 20px; /* Espace entre les éléments */
+  /* Tailwind v4 ne met plus cursor: pointer sur les boutons */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
-@media (max-width: 768px) {
+@utility clipPathBanner {
+  clip-path: polygon(26% 6%, 80% 19%, 79% 89%, 19% 72%);
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@layer utilities {
+  html {
+    scrollbar-gutter: stable;
+  }
   .masonry-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Plus petites colonnes pour les petits écrans */
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(300px, 1fr)
+    ); /* Colonne flexible */
+    gap: 1rem; /* Espacement entre les éléments */
+    width: 100%;
   }
-}
+  .grid-container {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(300px, 1fr)
+    ); /* Crée une grille fluide */
+    gap: 20px; /* Espace entre les éléments */
+  }
 
-.citation{
-  font-family: 'Times New Roman', Times, serif;
-  font-weight: 200;
-  font-style: italic;
-}
+  @media (max-width: 768px) {
+    .masonry-grid {
+      grid-template-columns: repeat(
+        auto-fill,
+        minmax(200px, 1fr)
+      ); /* Plus petites colonnes pour les petits écrans */
+    }
+  }
 
-html {
-  height: -webkit-fill-available;
-}
-body {
-  padding: 0;
-  margin: 0;
-}
+  .citation {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 200;
+    font-style: italic;
+  }
 
-.background-semiTransparent{
-  background-color: rgba(20,20,20, 0.8)
-  
-}
+  html {
+    height: -webkit-fill-available;
+  }
+  body {
+    padding: 0;
+    margin: 0;
+  }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .background-semiTransparent {
+    background-color: rgba(20, 20, 20, 0.8);
   }
 }
 

@@ -6,7 +6,7 @@ export async function getAbout() {
   if (!base) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
   // simple & safe
-  const url = `${base}/api/about?publicationState=preview&populate=*`;
+  const url = `${base}/api/about?populate=*`;
 
   const res = await fetchStrapi(url);
   const a = res?.data;
@@ -14,30 +14,30 @@ export async function getAbout() {
 
   return {
     hero: {
-      title: a.hero?.title ?? null,
-      subtitle: a.hero?.subtitle ?? null,
+      title: a.hero?.titre ?? null,
+      subtitle: a.hero?.sousTitre ?? null,
     },
 
     image: {
       url: getImageUrl(a.image),
-      alt: a.image?.alternativeText ?? a.hero?.title ?? "À propos",
+      alt: a.image?.alternativeText ?? a.hero?.titre ?? "À propos",
     },
 
     citation: {
-      text: a.citation?.citation ?? null,
+      text: a.citation?.texte ?? null,
       auteur: a.citation?.auteur ?? null,
     },
 
     contenu: a.contenu ?? [],
-    gallery: (a.gallery ?? []).map((img) => ({
+    gallery: (a.galerie ?? []).map((img) => ({
       url: getImageUrl(img),
-      alt: img?.alternativeText ?? a.hero?.title ?? "Gallery image",
+      alt: img?.alternativeText ?? a.hero?.titre ?? "Gallery image",
     })),
     cta: {
-      title: a.ctaBlock?.title ?? null,
-      text: a.ctaBlock?.text ?? null,
-      label: a.ctaBlock?.ctaLabel ?? null,
-      url: a.ctaBlock?.ctaUrl ?? null,
+      title: a.appelAction?.titre ?? null,
+      text: a.appelAction?.texte ?? null,
+      label: a.appelAction?.libelleBouton ?? null,
+      url: a.appelAction?.lienBouton ?? null,
     },
   };
 }

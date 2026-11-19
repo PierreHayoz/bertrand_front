@@ -11,12 +11,11 @@ export async function getHomepage() {
   // Strapi v5: populate ok comme ça, et ton endpoint répond déjà 200
   const url =
     `${base}/api/homepage` +
-    `?publicationState=preview` +
-    `&populate[Hero]=*` +
-    `&populate[ctaBlock]=*` +
+    `?populate[hero]=*` +
+    `&populate[appelAction]=*` +
     `&populate[citation]=*` +
-    `&populate[firstSelectionOeuvres][populate]=Image` +
-    `&populate[secondSelectionOeuvres][populate]=Image`;
+    `&populate[selection][populate]=image` +
+    `&populate[observations][populate]=image`;
 
 
   const res = await fetchStrapi(url);
@@ -26,22 +25,22 @@ export async function getHomepage() {
   if (!h) return null;
   return {
     hero: {
-      title: h.Hero?.title ?? null,
-      subtitle: h.Hero?.subtitle ?? null,
+      title: h.hero?.titre ?? null,
+      subtitle: h.hero?.sousTitre ?? null,
     },
 
     cta: {
-      title: h.ctaBlock?.title ?? null,
-      text: h.ctaBlock?.text ?? null,
-      label: h.ctaBlock?.ctaLabel ?? null,
-      url: h.ctaBlock?.ctaUrl ?? null,
+      title: h.appelAction?.titre ?? null,
+      text: h.appelAction?.texte ?? null,
+      label: h.appelAction?.libelleBouton ?? null,
+      url: h.appelAction?.lienBouton ?? null,
     },
 
-    firstSelection: mapOeuvres(h.firstSelectionOeuvres),
-    secondSelection: mapOeuvres(h.secondSelectionOeuvres),
+    firstSelection: mapOeuvres(h.selection),
+    secondSelection: mapOeuvres(h.observations),
 
     citation: {
-    text: h.citation?.citation ?? null,
+    text: h.citation?.texte ?? null,
     auteur: h.citation?.auteur ?? null,
   },
   };
@@ -56,12 +55,12 @@ function mapOeuvres(items) {
   if (!Array.isArray(items)) return [];
   return items.map((o) => ({
     id: o?.id ?? null,
-    titre: o?.Titre ?? null,
-    format: o?.Format ?? null,
+    titre: o?.titre ?? null,
+    format: o?.format ?? null,
     numero: o?.numero ?? null,
     date: o?.date ?? null,
-    imageUrl: toAbsoluteUrl(o?.Image?.formats?.small?.url ?? o?.Image?.url),
-    imageUrlModal: toAbsoluteUrl(o?.Image?.formats?.medium?.url ?? o?.Image?.url),
-    imageAlt: o?.Image?.alternativeText ?? null,
+    imageUrl: toAbsoluteUrl(o?.image?.formats?.small?.url ?? o?.image?.url),
+    imageUrlModal: toAbsoluteUrl(o?.image?.formats?.medium?.url ?? o?.image?.url),
+    imageAlt: o?.image?.alternativeText ?? null,
   }));
 }

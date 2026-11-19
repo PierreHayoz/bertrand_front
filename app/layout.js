@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
         <Header />
 
         <Providers>
-          <div className="z-[10] relative min-h-screen bg-stone-950">
+          <div className="z-10 relative min-h-screen bg-stone-950">
             <Suspense fallback={null}>
               <ModalProvider>
                 <SmoothScrollProvider>{children}</SmoothScrollProvider>

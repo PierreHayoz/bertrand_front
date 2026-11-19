@@ -8,17 +8,17 @@ function toAbsoluteUrl(url) {
 function mapOeuvre(o) {
   return {
     id: o.id,
-    titre: o.Titre ?? null,
-    format: o.Format ?? null,
+    titre: o.titre ?? null,
+    format: o.format ?? null,
     numero: o.numero ?? null,
     date: o.date ?? null,
     // Grille
-    imageUrl: toAbsoluteUrl(o.Image?.formats?.small?.url ?? o.Image?.url),
+    imageUrl: toAbsoluteUrl(o.image?.formats?.small?.url ?? o.image?.url),
     // Modal
-    imageUrlModal: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
+    imageUrlModal: toAbsoluteUrl(o.image?.formats?.medium?.url ?? o.image?.url),
     // Image mise en avant
-    imageUrlFeatured: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
-    imageAlt: o.Image?.alternativeText ?? null,
+    imageUrlFeatured: toAbsoluteUrl(o.image?.formats?.medium?.url ?? o.image?.url),
+    imageAlt: o.image?.alternativeText ?? null,
   };
 }
 
@@ -31,7 +31,7 @@ export async function getOeuvres() {
 
   while (allOeuvres.length < total) {
     const res = await fetch(
-`${STRAPI_URL}/api/oeuvres?populate=Image&pagination[page]=${page}&pagination[pageSize]=100&sort=date:desc`,
+`${STRAPI_URL}/api/oeuvres?populate=image&pagination[page]=${page}&pagination[pageSize]=100&sort=date:desc`,
       { cache: "no-store" }
     );
     if (!res.ok) throw new Error(`Strapi error ${res.status}`);

@@ -81,7 +81,7 @@ function renderChildrenToReact(children, keyPrefix) {
       if (child.italic) node = <em>{node}</em>;
       if (child.underline) node = <u>{node}</u>;
       if (child.strikethrough) node = <s>{node}</s>;
-      if (child.code) node = <code className="px-1 py-0.5 rounded bg-white/10">{node}</code>;
+      if (child.code) node = <code className="px-1 py-0.5 rounded-sm bg-white/10">{node}</code>;
 
       return <span key={`${keyPrefix}-${idx}`}>{node}</span>;
     }

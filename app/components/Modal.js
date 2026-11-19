@@ -38,7 +38,7 @@ export default function Modal({
           ? { opacity: 0, transition: { duration: 0 } }
           : { opacity: 0, transition: { duration: 0.25, ease: [0.25, 1, 0.5, 1] } }
       }
-      className="fixed inset-0 bg-black z-[9999]"
+      className="fixed inset-0 bg-black z-9999"
       role="dialog"
       aria-modal="true"
     >
@@ -75,7 +75,7 @@ export default function Modal({
                     transition={{ ease: [0.85, 0, 0.15, 1], duration: 0.2 }}
                     className="absolute inset-0 flex justify-center items-center"
                   >
-                    <div className="backdrop-blur bg-stone-200 text-stone-950 px-6 py-6 rounded-full">
+                    <div className="backdrop-blur-sm bg-stone-200 text-stone-950 px-6 py-6 rounded-full">
                       <Minimize2 size={20} strokeWidth={1.4} />
                     </div>
                   </motion.div>

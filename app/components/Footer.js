@@ -21,7 +21,7 @@ export default async function Footer() {
 
   if (!footer) return null;
 
-  const contact = footer.Contact;
+  const contact = footer.contact;
 
   return (
     <footer className="bg-stone-200 md:sticky bottom-0 z-0 border-t border-stone-300/70">
@@ -34,13 +34,13 @@ export default async function Footer() {
             </div>
 
             <div className="mt-4 text-2xl md:text-4xl font-light leading-tight text-stone-950">
-              {footer.contactText}
+              {footer.texteContact}
             </div>
 
 
 
             <a
-              href={`mailto:${contact?.Mail}`}
+              href={`mailto:${contact?.email}`}
               className="group inline-flex mt-8"
             >
               <div
@@ -85,29 +85,29 @@ export default async function Footer() {
             </div>
 
             <div className="mt-5 space-y-4 text-stone-900">
-              {contact?.Phone ? (
+              {contact?.telephone ? (
                 <div>
                   <div className="text-stone-600 text-sm">Téléphone</div>
-                  <div className="text-base">{contact.Phone}</div>
+                  <div className="text-base">{contact.telephone}</div>
                 </div>
               ) : null}
 
-              {contact?.Mail ? (
+              {contact?.email ? (
                 <div>
                   <div className="text-stone-600 text-sm">Email</div>
-                  <a className="text-stone-900 hover:text-stone-950 hover:underline" href={`mailto:${contact.Mail}`}>
-                    {contact.Mail}
+                  <a className="text-stone-900 hover:text-stone-950 hover:underline" href={`mailto:${contact.email}`}>
+                    {contact.email}
                   </a>
                 </div>
               ) : null}
 
-              {(contact?.Address || contact?.NPA) ? (
+              {(contact?.adresse || contact?.npaLocalite) ? (
                 <div>
                   <div className="text-stone-600 text-sm">Adresse</div>
                   <div className="text-base text-stone-900">
-                    {contact?.Address}
-                    {contact?.NPA ? (
-                      <span className="text-stone-700"> — {contact.NPA}</span>
+                    {contact?.adresse}
+                    {contact?.npaLocalite ? (
+                      <span className="text-stone-700"> — {contact.npaLocalite}</span>
                     ) : null}
                   </div>
                 </div>

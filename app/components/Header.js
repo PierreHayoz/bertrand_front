@@ -53,7 +53,7 @@ useEffect(() => {
 
 
   return (
-    <header className="fixed top-0 z-[100] w-full bg-stone-950/80 backdrop-blur border-b border-stone-900/70">
+    <header className="fixed top-0 z-100 w-full bg-stone-950/80 backdrop-blur-sm border-b border-stone-900/70">
       <div className="mx-auto max-w-7xl px-8 md:px-16 h-16 flex items-center justify-between">
         {/* Brand */}
         <TransitionLink
@@ -78,7 +78,7 @@ useEffect(() => {
                 className="group relative"
               >
                 <span
-                  className={` border border-1 border-stone-800 relative block px-3 py-1 text-stone-200 text-sm tracking-wide transition-colors overflow-hidden rounded-full`}
+                  className={`border border-stone-800 relative block px-3 py-1 text-stone-200 text-sm tracking-wide transition-colors overflow-hidden rounded-full`}
                 >
                   {item.label}
                   <div className={`w-full h-full group-hover:left-0 top-0 duration-300 ${active ? "left-0" : "-left-full"} absolute bg-stone-200 mix-blend-difference`}></div>
@@ -90,7 +90,7 @@ useEffect(() => {
         </nav>
 
         <button
-          className="md:hidden inline-flex relative z-[1000] items-center gap-2 rounded-full border border-stone-800 px-4 py-2 text-stone-200"
+          className="md:hidden inline-flex relative z-1000 items-center gap-2 rounded-full border border-stone-800 px-4 py-2 text-stone-200"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={open}
@@ -105,7 +105,7 @@ useEffect(() => {
       {open && (
         <>
 
-          <div className="md:hidden fixed inset-0 z-[120] bg-stone-950 h-[100dvh]">
+          <div className="md:hidden fixed inset-0 z-120 bg-stone-950 h-dvh">
             <div className="flex h-full min-h-0 flex-col">
               {/* nav scrollable */}
               <nav className="flex-1 min-h-0 overflow-y-auto px-8 pt-24 pb-8">
