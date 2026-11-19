@@ -23,13 +23,21 @@ export default async function Home() {
   return (
     <main>
       <section className="container-site pt-36 md:pt-48 pb-20 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10 items-end">
-        <div className="intro md:col-span-8">
-          <p className="t-label text-muted">Artiste peintre · Fribourg</p>
-          <h1 className="mt-6 t-display text-ink text-balance">{homepage.hero.title}</h1>
+        <div className="md:col-span-8">
+          <p className="t-label text-muted" data-reveal="fade">
+            Artiste peintre · Fribourg
+          </p>
+          <h1 className="mt-6 t-display text-ink text-balance" data-reveal="lines" data-delay="0.05">
+            {homepage.hero.title}
+          </h1>
         </div>
-        <div className="intro md:col-span-4">
-          {homepage.hero.subtitle ? <p className="t-lead text-muted">{homepage.hero.subtitle}</p> : null}
-          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
+        <div className="md:col-span-4">
+          {homepage.hero.subtitle ? (
+            <p className="t-lead text-muted" data-reveal="fade" data-delay="0.45">
+              {homepage.hero.subtitle}
+            </p>
+          ) : null}
+          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3" data-reveal="fade" data-delay="0.6">
             <ArrowLink href="/oeuvres">Les œuvres</ArrowLink>
             <ArrowLink href="/about">Le parcours</ArrowLink>
           </div>

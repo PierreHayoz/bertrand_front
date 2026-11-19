@@ -30,7 +30,7 @@ export default async function ExpositionsPage() {
         {live.length ? (
           <ExpoList expos={live} />
         ) : (
-          <p className="reveal mt-8 t-lead text-muted">Aucune exposition annoncée pour le moment.</p>
+          <p className="mt-8 t-lead text-muted" data-reveal="fade">Aucune exposition annoncée pour le moment.</p>
         )}
       </section>
 
@@ -50,7 +50,7 @@ function ExpoList({ expos }) {
   return (
     <ul className="mt-6">
       {expos.map((expo) => (
-        <li key={expo.id} className="reveal border-b border-line">
+        <li key={expo.id} className="border-b border-line" data-reveal="fade">
           <TransitionLink
             href={`/expositions/${expo.slug}`}
             label={expo.titre}

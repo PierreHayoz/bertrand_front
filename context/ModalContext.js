@@ -1,13 +1,56 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import Viewer from "@/app/components/Viewer";
+import { prefersReducedMotion } from "@/app/lib/motion";
 
 const ModalContext = createContext(null);
 export function useModal() {
   return useContext(ModalContext);
 }
+
+const NAME = "artwork";
+
+/** Précharge la grande image pour que la transition morphe vers une image déjà prête. */
+function preload(src, timeout = 450) {
+  if (!src) return Promise.resolve();
+  const img = new window.Image();
+  img.src = src;
+  return Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, timeout))]);
+}
+
+/**
+ * Transition d'élément partagé (View Transitions API) : l'image `from` se transforme
+ * en l'image `to` révélée par `update`. Sans prise en charge, mise à jour directe.
+ */
+function morph(update, getFrom, getTo) {
+  if (!document.startViewTransition || prefersReducedMotion()) {
+    update();
+    return;
+  }
+  const from = getFrom();
+  if (from) from.style.viewTransitionName = NAME;
+  const transition = document.startViewTransition(() => {
+    if (from) from.style.viewTransitionName = "";
+    flushSync(update);
+    const to = getTo();
+    if (to) to.style.viewTransitionName = NAME;
+  });
+  transition.finished.finally(() => {
+    const to = getTo();
+    if (to) to.style.viewTransitionName = "";
+  });
+}
+
+const viewerImg = () => document.querySelector("dialog[open] [data-viewer-img]");
+const thumbOf = (id) => {
+  const el = document.querySelector(`[data-oeuvre="${CSS.escape(String(id))}"] img`);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return r.bottom > 0 && r.top < window.innerHeight ? el : null; // seulement si visible
+};
 
 export function ModalProvider({ children }) {
   const pathname = usePathname();
@@ -16,19 +59,34 @@ export function ModalProvider({ children }) {
 
   // { list, index } : on peut passer d'une œuvre à l'autre dans la même liste
   const [state, setState] = useState(null);
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
-  const openModal = useCallback((oeuvre, list) => {
+  const openModal = useCallback(async (oeuvre, list, fromImg) => {
     const items = Array.isArray(list) && list.length ? list : [oeuvre];
-    setState({ list: items, index: Math.max(0, items.findIndex((o) => o.id === oeuvre.id)) });
+    const index = Math.max(0, items.findIndex((o) => o.id === oeuvre.id));
+    await preload(oeuvre.image?.srcLarge);
+    morph(() => setState({ list: items, index }), () => fromImg, viewerImg);
   }, []);
 
-  const closeModal = useCallback(() => setState(null), []);
-
-  const step = useCallback((delta) => {
-    setState((s) => (s ? { ...s, index: (s.index + delta + s.list.length) % s.list.length } : s));
+  const closeModal = useCallback(() => {
+    const s = stateRef.current;
+    if (!s) return;
+    const id = s.list[s.index]?.id;
+    morph(() => setState(null), viewerImg, () => thumbOf(id));
   }, []);
 
-  // Fermeture lors d'un changement de page
+  const step = useCallback(async (delta) => {
+    const s = stateRef.current;
+    if (!s) return;
+    const index = (s.index + delta + s.list.length) % s.list.length;
+    await preload(s.list[index]?.image?.srcLarge);
+    morph(() => setState({ ...s, index }), viewerImg, viewerImg);
+  }, []);
+
+  // Fermeture immédiate lors d'un changement de page
   const [openedOn, setOpenedOn] = useState(routeKey);
   if (openedOn !== routeKey) {
     setOpenedOn(routeKey);

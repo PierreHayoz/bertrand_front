@@ -1,11 +1,13 @@
 import "./globals.css";
 import { Suspense } from "react";
-import { Google_Sans_Flex, Instrument_Serif } from "next/font/google";
+import { Google_Sans_Flex } from "next/font/google";
+import localFont from "next/font/local";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { ModalProvider } from "@/context/ModalContext";
 import SmoothScrollProvider from "./lenis-providers";
 import { Providers } from "./providers";
+import Motion from "./components/Motion";
 import { getContact } from "./lib/content";
 
 const body = Google_Sans_Flex({
@@ -16,12 +18,14 @@ const body = Google_Sans_Flex({
   fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
-const display = Instrument_Serif({
+// Gambarino (Théo Guillard / Indian Type Foundry, ITF Free Font License : auto-hébergement autorisé)
+const display = localFont({
+  src: "./fonts/Gambarino-Regular.woff2",
   weight: "400",
-  style: ["normal", "italic"],
-  subsets: ["latin"],
+  style: "normal",
   variable: "--font-display",
   display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 export const metadata = {
@@ -49,10 +53,9 @@ export const viewport = {
 
 /*
  * Avant le premier affichage : thème mémorisé (pas de flash) et marqueur JS.
- * `data-ready` (posé à la levée du rideau) déclenche les animations d'intro ;
- * filet de sécurité si le rideau ne se lève pas.
+ * Filet de sécurité : si les animations ne se mettent pas en place, on affiche tout.
  */
-const bootScript = `(function(){var d=document.documentElement;d.dataset.js="";try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")d.dataset.theme=t}catch(e){}addEventListener("curtain:done",function(){d.dataset.ready=""});setTimeout(function(){d.dataset.ready=""},2500)})()`;
+const bootScript = `(function(){var d=document.documentElement;d.dataset.js="";try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")d.dataset.theme=t}catch(e){}setTimeout(function(){if(!d.dataset.motion)d.dataset.motion="off"},4000)})()`;
 
 export default async function RootLayout({ children }) {
   const contact = await getContact();
@@ -79,7 +82,10 @@ export default async function RootLayout({ children }) {
           <div id="contenu" className="relative z-10 min-h-screen bg-bg">
             <Suspense fallback={null}>
               <ModalProvider>
-                <SmoothScrollProvider>{children}</SmoothScrollProvider>
+                <SmoothScrollProvider>
+                  <Motion />
+                  {children}
+                </SmoothScrollProvider>
               </ModalProvider>
             </Suspense>
           </div>

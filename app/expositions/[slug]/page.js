@@ -42,13 +42,17 @@ export default async function ExpositionPage({ params }) {
       </div>
 
       <article className="container-site mt-10 md:mt-14 pb-24 md:pb-36 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-12">
-        <header className="intro md:col-span-7 md:col-start-6 md:row-start-1">
-          <StatusLabel status={expo.status} />
-          <h1 className="mt-5 t-h1 text-ink text-balance">{expo.titre}</h1>
+        <header className="md:col-span-7 md:col-start-6 md:row-start-1">
+          <div data-reveal="fade">
+            <StatusLabel status={expo.status} />
+          </div>
+          <h1 className="mt-5 t-h1 text-ink text-balance" data-reveal="lines" data-delay="0.05">
+            {expo.titre}
+          </h1>
         </header>
 
         {expo.cover ? (
-          <figure className="md:col-span-4 md:row-span-3 md:row-start-1 md:sticky md:top-28 self-start bg-surface">
+          <figure className="md:col-span-4 md:row-span-3 md:row-start-1 md:sticky md:top-28 self-start bg-surface" data-reveal="image">
             <Image
               src={expo.cover.srcLarge}
               width={expo.cover.width}
@@ -61,7 +65,7 @@ export default async function ExpositionPage({ params }) {
           </figure>
         ) : null}
 
-        <dl className="reveal md:col-span-7 md:col-start-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-y border-line py-6">
+        <dl data-reveal="fade" data-delay="0.2" className="md:col-span-7 md:col-start-6 grid grid-cols-1 sm:grid-cols-3 gap-6 border-y border-line py-6">
           {infos.map((it) => (
             <div key={it.label}>
               <dt className="t-label text-muted">{it.label}</dt>
@@ -70,7 +74,7 @@ export default async function ExpositionPage({ params }) {
           ))}
         </dl>
 
-        <div className="reveal md:col-span-6 md:col-start-6">
+        <div className="md:col-span-6 md:col-start-6" data-reveal="fade" data-delay="0.3">
           <BlocksRenderer blocks={expo.description} />
           {expo.lien ? <ArrowLink href={expo.lien} className="mt-10">Plus d’informations</ArrowLink> : null}
         </div>

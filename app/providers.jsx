@@ -1,198 +1,107 @@
 "use client";
-import React, { useRef, useState, useEffect, startTransition } from "react";
-import { gsap } from "gsap";
-import { TransitionRouter, useTransitionState } from "next-transition-router";
 
-const LABELS = {
+import { useEffect, useRef } from "react";
+import { TransitionRouter } from "next-transition-router";
+import { gsap, markCurtain, prefersReducedMotion, takeNextLabel } from "./lib/motion";
+
+export const LABELS = {
   "/": { label: "Bertrand Kolly", subtitle: "Artiste peintre" },
   "/oeuvres": { label: "Œuvres" },
   "/about": { label: "À propos" },
   "/expositions": { label: "Expositions" },
 };
 
-function CurtainController({ curtainRef, labelRef, subtitleRef }) {
-  const { isReady } = useTransitionState();
-  const isFirstLoad = useRef(true);
+const labelFor = (href) => {
+  const path = new URL(href, window.location.href).pathname;
+  return LABELS[path] ?? { label: document.title.split("|")[0].trim() };
+};
 
+/**
+ * Rideau de transition entre les pages.
+ * Sortie : le rideau monte depuis le bas pendant que la page s'éloigne vers le haut,
+ * puis le titre de la page suivante se dévoile ligne masquée.
+ * Entrée : le titre s'efface, le rideau se lève et la nouvelle page remonte avec lui.
+ */
+export function Providers({ children }) {
+  const curtain = useRef(null);
+  const label = useRef(null);
+  const subtitle = useRef(null);
+
+  const setText = ({ label: l, subtitle: s }) => {
+    label.current.textContent = l ?? "";
+    subtitle.current.textContent = s ?? "";
+  };
+
+  // Premier chargement
   useEffect(() => {
-    if (!isReady) return;
-
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      const pathname = window.location.pathname;
-      const entry = LABELS[pathname];
-      const pageTitle = entry?.label ?? document.title.split("|")[0].trim();
-      const pageSub = entry?.subtitle ?? null;
-
-      gsap.set(curtainRef.current, { y: "0%" });
-
-      if (labelRef.current) labelRef.current.textContent = pageTitle;
-      if (subtitleRef.current) subtitleRef.current.textContent = pageSub ?? "";
-
-      gsap.to([labelRef.current, pageSub ? subtitleRef.current : null].filter(Boolean), {
-        opacity: 1,
-        y: 0,
-        duration: 0.35,
-        ease: "power2.out",
-      });
-      gsap.to([labelRef.current, subtitleRef.current], {
-        opacity: 0,
-        y: 12,
-        duration: 0.25,
-        delay: 0.6, // ← laisse le texte visible
-        ease: "power2.in",
-        onComplete: () => {
-          gsap.to(curtainRef.current, {
-            y: "100%",
-            duration: 0.8,
-            ease: "power4.inOut",
-            onComplete: () => {
-              window.__isCurtainDone = true;
-              window.dispatchEvent(new Event("curtain:done"));
-            },
-          });
-        }
-      });
-      gsap.to(curtainRef.current, {
-        y: "-100%",
-        duration: 0.8,
-        ease: "power4.inOut",
-        delay: 0.8,
-        onComplete: () => {
-          gsap.set(curtainRef.current, { y: "100%" });
-          gsap.set([labelRef.current, subtitleRef.current], { opacity: 0, y: 12 });
-          if (labelRef.current) labelRef.current.textContent = "";
-          if (subtitleRef.current) subtitleRef.current.textContent = "";
-          window.__isCurtainDone = true;
-          window.dispatchEvent(new Event("curtain:done"));
-        },
-      });
+    if (prefersReducedMotion()) {
+      gsap.set(curtain.current, { yPercent: 100 });
+      markCurtain(true);
       return;
     }
-
-    const targets = [labelRef.current, subtitleRef.current].filter(Boolean);
-    const tl = gsap.timeline()
-      .to(targets, { opacity: 0, y: 12, duration: 0.2, ease: "power2.in" })
-      .to(curtainRef.current, {
-        y: "100%",
-        duration: 0.8,
-        ease: "power4.inOut",
-        onComplete: () => {
-          gsap.set(curtainRef.current, { y: "-100%" });
-          gsap.set(targets, { opacity: 0, y: 12 });
-          window.__isCurtainDone = true;
-          window.dispatchEvent(new Event("curtain:done"));
-        },
-      });
-
+    setText(labelFor(window.location.href));
+    const tl = gsap
+      .timeline({ defaults: { ease: "silk" } })
+      .fromTo([label.current, subtitle.current], { yPercent: 110 }, { yPercent: 0, duration: 0.9, stagger: 0.07 }, 0.1)
+      .to([label.current, subtitle.current], { yPercent: -110, duration: 0.5, ease: "power3.in", stagger: 0.04 }, "+=0.05")
+      .to(curtain.current, { yPercent: -100, duration: 1.15, ease: "curtain" }, "-=0.2")
+      .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.15, ease: "curtain", clearProps: "transform" }, "<")
+      .add(() => markCurtain(true), "<0.55")
+      .set(curtain.current, { yPercent: 100 });
     return () => tl.kill();
-  }, [isReady, curtainRef, labelRef, subtitleRef]);
-
-  return null;
-}
-
-export { LABELS };
-
-export function Providers({ children }) {
-  const curtainRef = useRef(null);
-  const labelRef = useRef(null);
-  const subtitleRef = useRef(null);
-
-  const curtainSubtitleRef = useRef(null); // valeur live, pas le state
-
-  // Points d'entrée utilisés par TransitionLink pour annoncer le titre de la page suivante
-  useEffect(() => {
-    const w = globalThis;
-    w.__setCurtainLabel = (text) => {
-      if (labelRef.current) labelRef.current.textContent = text;
-    };
-    w.__setCurtainSubtitle = (sub) => {
-      curtainSubtitleRef.current = sub;
-      if (subtitleRef.current) subtitleRef.current.textContent = sub ?? "";
-    };
-    return () => {
-      delete w.__setCurtainLabel;
-      delete w.__setCurtainSubtitle;
-    };
   }, []);
 
   return (
     <TransitionRouter
       auto
-      leave={(next) => {
-        window.__isCurtainDone = false;
-        delete document.documentElement.dataset.ready; // rejoue les intros à la levée du rideau
-        const tl = gsap.timeline({ onComplete: next })
-          .fromTo(curtainRef.current,
-            { y: "-100%" },
-            { y: "0%", duration: 0.8, ease: "power4.inOut" }
-          )
-          .to(labelRef.current, {
-            opacity: 1,
-            y: 0,
-            duration: 0.35,
-            ease: "power2.out",
-            onStart: () => {
-              // Lu ici, après que TransitionLink a eu le temps de setter
-              if (curtainSubtitleRef.current) {
-                gsap.to(subtitleRef.current, { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" });
-              }
-            },
-          });
+      leave={(next, _from, to) => {
+        markCurtain(false);
+        if (prefersReducedMotion()) {
+          next();
+          return;
+        }
+        const tl = gsap
+          .timeline({ defaults: { ease: "curtain" }, onComplete: next })
+          .fromTo(curtain.current, { yPercent: 100 }, { yPercent: 0, duration: 0.95 })
+          .to("#contenu", { y: "-12vh", duration: 0.95 }, 0)
+          .add(() => setText(takeNextLabel(labelFor(to))), 0.3)
+          .fromTo(
+            [label.current, subtitle.current],
+            { yPercent: 110 },
+            { yPercent: 0, duration: 0.8, ease: "silk", stagger: 0.06 },
+            0.55
+          );
         return () => tl.kill();
       }}
       enter={(next) => {
-        requestAnimationFrame(() => startTransition(next));
+        if (prefersReducedMotion()) {
+          gsap.set("#contenu", { clearProps: "transform" });
+          markCurtain(true);
+          next();
+          return;
+        }
+        const tl = gsap
+          .timeline({ defaults: { ease: "curtain" }, onComplete: next })
+          .to([label.current, subtitle.current], { yPercent: -110, duration: 0.5, ease: "power3.in", stagger: 0.04 })
+          .to(curtain.current, { yPercent: -100, duration: 1.05 }, "-=0.1")
+          .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.05, clearProps: "transform" }, "<")
+          .add(() => markCurtain(true), "<0.5")
+          .set(curtain.current, { yPercent: 100 });
+        return () => tl.kill();
       }}
     >
-      <CurtainController
-        curtainRef={curtainRef}
-        labelRef={labelRef}
-        subtitleRef={subtitleRef}
-      />
-
       <div
-        ref={curtainRef}
+        ref={curtain}
         aria-hidden="true"
-        className="px-8 text-center"
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 9000,
-          pointerEvents: "none",
-          background: "var(--inverse-bg)",
-
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "8px",
-          
-          transform: "translateY(0%)",
-        }}
+        className="curtain fixed inset-0 z-9000 pointer-events-none bg-inverse text-inverse-ink flex flex-col items-center justify-center gap-3 px-8 text-center"
       >
-        <span
-          ref={labelRef}
-          className="t-h1"
-          style={{
-            color: "var(--inverse-ink)",
-            opacity: 0,
-            transform: "translateY(12px)",
-          }}
-        />
-        <span
-          ref={subtitleRef}
-          style={{
-            fontSize: "12px",
-            color: "var(--inverse-muted)",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            opacity: 0,
-            transform: "translateY(12px)",
-          }}
-        />
+        <span className="block overflow-hidden pb-[0.12em]">
+          <span ref={label} className="block t-h1" />
+        </span>
+        <span className="block overflow-hidden">
+          <span ref={subtitle} className="block t-label text-inverse-muted" />
+        </span>
       </div>
-
       {children}
     </TransitionRouter>
   );

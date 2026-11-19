@@ -17,7 +17,10 @@ export function ArtworkCaption({ oeuvre, className = "" }) {
   );
 }
 
-/** Image d'une œuvre (proportions réelles) qui ouvre la visionneuse. */
+/**
+ * Image d'une œuvre (proportions réelles) qui ouvre la visionneuse.
+ * `data-oeuvre` permet à la visionneuse de retrouver la vignette pour l'animation de retour.
+ */
 export function ArtworkImage({ oeuvre, list, sizes, priority = false, className = "", imgClassName = "" }) {
   const { openModal } = useModal();
   if (!oeuvre?.image) return null;
@@ -26,9 +29,10 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
   return (
     <button
       type="button"
-      onClick={() => openModal(oeuvre, list)}
+      onClick={(e) => openModal(oeuvre, list, e.currentTarget.querySelector("img"))}
       className={`group block w-full overflow-hidden bg-surface ${className}`}
       aria-label={`Agrandir « ${oeuvre.titre} »${oeuvre.numero ? `, n° ${oeuvre.numero}` : ""}`}
+      data-oeuvre={oeuvre.id}
     >
       <Image
         src={src}
@@ -37,27 +41,24 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
         alt={alt}
         sizes={sizes}
         priority={priority}
-        className={`h-auto w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.03] ${imgClassName}`}
+        className={`h-auto w-full transition-[scale] duration-1000 ease-out-expo group-hover:scale-[1.035] ${imgClassName}`}
       />
     </button>
   );
 }
 
-/**
- * Grille d'œuvres lue de gauche à droite (ordre du DOM = ordre visuel).
- * Les colonnes paires glissent à contre-temps au défilement (.drift-grid).
- */
+/** Grille d'œuvres lue de gauche à droite ; chaque œuvre se dévoile en entrant dans l'écran. */
 export function ArtworkGrid({ oeuvres, sizes = "(max-width: 768px) 50vw, 25vw" }) {
   if (!oeuvres?.length) return null;
   return (
-    <ul className="drift-grid grid grid-cols-2 md:grid-cols-4 items-start gap-x-4 gap-y-14 md:gap-x-8 md:gap-y-24">
+    <ul className="grid grid-cols-2 md:grid-cols-4 items-start gap-x-4 gap-y-14 md:gap-x-8 md:gap-y-24">
       {oeuvres.map((o) => (
         <li key={o.id}>
           <figure>
-            <div className="unveil">
+            <div data-reveal="image">
               <ArtworkImage oeuvre={o} list={oeuvres} sizes={sizes} />
             </div>
-            <figcaption className="mt-3">
+            <figcaption className="mt-3" data-reveal="fade" data-delay="0.35">
               <ArtworkCaption oeuvre={o} />
             </figcaption>
           </figure>

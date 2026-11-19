@@ -19,7 +19,7 @@ export default async function AboutPage() {
 
       <section className="container-site pb-8 md:pb-16 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-12">
         {about.image ? (
-          <figure className="md:col-span-5 md:sticky md:top-28 self-start bg-surface">
+          <figure className="md:col-span-5 md:sticky md:top-28 self-start bg-surface" data-reveal="image">
             <Image
               src={about.image.srcLarge}
               width={about.image.width}
@@ -31,7 +31,7 @@ export default async function AboutPage() {
             />
           </figure>
         ) : null}
-        <div className="reveal md:col-span-6 md:col-start-7">
+        <div className="md:col-span-6 md:col-start-7" data-reveal="fade" data-delay="0.2">
           <BlocksRenderer blocks={about.contenu} lead />
         </div>
       </section>

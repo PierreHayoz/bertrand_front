@@ -7,9 +7,9 @@ export default function Gallery({ images = [], label = "Galerie", title = "Image
   return (
     <section className="container-site pb-24 md:pb-36">
       <SectionHeading label={label} title={title} />
-      <ul className="drift-grid mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 items-start gap-4 md:gap-8">
+      <ul className="mt-12 md:mt-16 grid grid-cols-2 md:grid-cols-4 items-start gap-4 md:gap-8">
         {images.map((img, i) => (
-          <li key={img.src ?? i} className="unveil bg-surface">
+          <li key={img.src ?? i} className="overflow-hidden bg-surface" data-reveal="image">
             <Image
               src={img.src}
               width={img.width}

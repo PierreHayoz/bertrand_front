@@ -45,14 +45,20 @@ export default async function OeuvresPage({ searchParams }) {
 
       {featured ? (
         <section className="container-site pb-24 md:pb-36">
-          <div className="reveal border-t border-line pt-6 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-8 items-end">
+          <div className="border-t border-line pt-6 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-8 items-end">
             <div className="md:col-span-4 md:pb-2">
-              <p className="t-label text-muted">Dernière création</p>
-              <h2 className="mt-4 t-h1 text-ink">{featured.titre}</h2>
-              <ArtworkCaption oeuvre={{ ...featured, titre: null }} className="mt-6" />
+              <p className="t-label text-muted" data-reveal="fade">
+                Dernière création
+              </p>
+              <h2 className="mt-4 t-h1 text-ink" data-reveal="lines">
+                {featured.titre}
+              </h2>
+              <div data-reveal="fade" data-delay="0.3">
+                <ArtworkCaption oeuvre={{ ...featured, titre: null }} className="mt-6" />
+              </div>
             </div>
             <div className="md:col-span-7 md:col-start-6 flex md:justify-end">
-              <div className="unveil">
+              <div data-reveal="image" data-delay="0.15">
                 <ArtworkImage
                   oeuvre={featured}
                   list={items}

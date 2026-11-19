@@ -1,63 +1,69 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import Image from "next/image";
+import { useLayoutEffect, useRef } from "react";
 import { ArtworkCaption } from "./Artwork";
 
 /**
- * Visionneuse plein écran sur <dialog> natif : couche supérieure (au-dessus de tout),
- * focus piégé et Échap gérés par le navigateur. ← → pour naviguer.
+ * Visionneuse plein écran sur <dialog> natif : couche supérieure, focus piégé.
+ * Échap, ← et → au clavier. Ouverture/fermeture animées par View Transitions
+ * (voir ModalContext) : la vignette se transforme en grande image.
  */
 export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
   const ref = useRef(null);
-  const handlers = useRef({ onPrev, onNext });
-
-  useEffect(() => {
-    handlers.current = { onPrev, onNext };
-  });
-
   const isOpen = Boolean(oeuvre);
 
-  useEffect(() => {
+  // Layout effect : la boîte de dialogue doit être ouverte dans le même rendu
+  // que la mise à jour, pour être capturée par la transition.
+  useLayoutEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
     if (isOpen && !dialog.open) {
       dialog.showModal();
       globalThis.__lenis?.stop?.();
+    } else if (!isOpen && dialog.open) {
+      dialog.close();
+      globalThis.__lenis?.start?.();
     }
-    if (!isOpen && dialog.open) dialog.close();
   }, [isOpen]);
-
-  const onKeyDown = (e) => {
-    if (e.key === "ArrowLeft") handlers.current.onPrev?.();
-    if (e.key === "ArrowRight") handlers.current.onNext?.();
-  };
 
   return (
     <dialog
       ref={ref}
       className="viewer"
       aria-label={oeuvre?.titre ?? "Œuvre"}
-      onClose={() => {
-        globalThis.__lenis?.start?.();
+      onCancel={(e) => {
+        // Échap : on passe par onClose pour profiter de la transition
+        e.preventDefault();
         onClose();
       }}
-      onKeyDown={onKeyDown}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") onPrev?.();
+        if (e.key === "ArrowRight") onNext?.();
+      }}
     >
       {oeuvre ? (
         <div className="flex h-full flex-col">
           <div className="container-site flex h-16 md:h-20 shrink-0 items-center justify-between">
             <span className="t-label tabular-nums text-faint">{position}</span>
-            <button type="button" onClick={() => ref.current?.close()} className="t-label py-2 text-ink" autoFocus>
+            <button type="button" onClick={onClose} className="t-label py-2 text-ink link-underline" autoFocus>
               Fermer
             </button>
           </div>
 
           <div className="container-site relative flex min-h-0 flex-1 items-center justify-center">
             {oeuvre.image ? (
-              <div key={oeuvre.id} className="viewer-img relative h-full w-full">
-                <Image src={oeuvre.image.srcLarge} alt={oeuvre.image.alt} fill sizes="100vw" className="object-contain" />
-              </div>
+              // Image déjà générée par Strapi (format « large ») et préchargée : servie telle quelle
+              // pour que la transition morphe vers une image décodée.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                data-viewer-img
+                src={oeuvre.image.srcLarge}
+                alt={oeuvre.image.alt}
+                width={oeuvre.image.width}
+                height={oeuvre.image.height}
+                className="max-h-full max-w-full w-auto h-auto object-contain"
+                decoding="sync"
+              />
             ) : null}
             {onPrev ? (
               <button
@@ -83,10 +89,10 @@ export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
             <ArtworkCaption oeuvre={oeuvre} />
             {onPrev ? (
               <div className="flex gap-6 text-ink">
-                <button type="button" onClick={onPrev} className="t-label py-2 hover:text-muted">
+                <button type="button" onClick={onPrev} className="t-label py-2 link-underline">
                   ← Précédente
                 </button>
-                <button type="button" onClick={onNext} className="t-label py-2 hover:text-muted">
+                <button type="button" onClick={onNext} className="t-label py-2 link-underline">
                   Suivante →
                 </button>
               </div>
