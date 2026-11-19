@@ -1,24 +1,19 @@
+import { fetchStrapi, toImage } from "./strapi";
+
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
+// Plus récentes d'abord ; à date égale, le numéro le plus élevé d'abord.
+const SORT = "sort[0]=date:desc&sort[1]=numero:desc";
 
-function toAbsoluteUrl(url) {
-  if (!url || !STRAPI_URL) return null;
-  return url.startsWith("http") ? url : `${STRAPI_URL}${url}`;
-}
-
-function mapOeuvre(o) {
+export function mapOeuvre(o) {
+  const titre = o?.titre ?? null;
   return {
-    id: o.id,
-    titre: o.titre ?? null,
-    format: o.format ?? null,
+    id: o.documentId ?? o.id,
     numero: o.numero ?? null,
+    titre,
+    format: o.format ?? null,
     date: o.date ?? null,
-    // Grille
-    imageUrl: toAbsoluteUrl(o.image?.formats?.small?.url ?? o.image?.url),
-    // Modal
-    imageUrlModal: toAbsoluteUrl(o.image?.formats?.medium?.url ?? o.image?.url),
-    // Image mise en avant
-    imageUrlFeatured: toAbsoluteUrl(o.image?.formats?.medium?.url ?? o.image?.url),
-    imageAlt: o.image?.alternativeText ?? null,
+    year: o.date ? new Date(o.date).getFullYear() : null,
+    image: toImage(o.image, `${titre ?? "Œuvre"}${o.numero ? ` (n° ${o.numero})` : ""}`),
   };
 }
 
@@ -26,20 +21,26 @@ export async function getOeuvres() {
   if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
 
   let page = 1;
-  let allOeuvres = [];
+  let all = [];
   let total = Infinity;
 
-  while (allOeuvres.length < total) {
-    const res = await fetch(
-`${STRAPI_URL}/api/oeuvres?populate=image&pagination[page]=${page}&pagination[pageSize]=100&sort=date:desc`,
-      { cache: "no-store" }
+  while (all.length < total) {
+    const json = await fetchStrapi(
+      `${STRAPI_URL}/api/oeuvres?populate=image&${SORT}&pagination[page]=${page}&pagination[pageSize]=100`
     );
-    if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-    const json = await res.json();
     total = json.meta.pagination.total;
-    allOeuvres = [...allOeuvres, ...json.data.map(mapOeuvre)];
+    all = all.concat(json.data.map(mapOeuvre));
     page++;
+    if (!json.data.length) break;
   }
 
-  return allOeuvres;
+  return all;
+}
+
+export async function getLatestOeuvres(limit = 9) {
+  if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
+  const json = await fetchStrapi(
+    `${STRAPI_URL}/api/oeuvres?populate=image&${SORT}&pagination[pageSize]=${limit}`
+  );
+  return (json?.data ?? []).map(mapOeuvre);
 }

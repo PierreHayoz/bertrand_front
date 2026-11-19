@@ -1,17 +1,26 @@
 import "./globals.css";
+import { Suspense } from "react";
+import { Google_Sans_Flex, Instrument_Serif } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import { ModalProvider } from "@/context/ModalContext";
-import { Google_Sans_Flex } from 'next/font/google'
-import SmoothScrollProvider, { LenisProvider } from "./lenis-providers";
-import { Suspense } from "react";
+import SmoothScrollProvider from "./lenis-providers";
 import { Providers } from "./providers";
+import { getFooter } from "./lib/footer";
 
-const gsf = Google_Sans_Flex({
-  weight: '400',
-  subsets: ['latin'],
-})
+const body = Google_Sans_Flex({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
 
+const display = Instrument_Serif({
+  weight: "400",
+  style: ["normal", "italic"],
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata = {
   metadataBase: new URL("https://bertrandkolly.ch"),
@@ -19,32 +28,37 @@ export const metadata = {
     default: "Bertrand Kolly | Artiste peintre",
     template: "%s | Bertrand Kolly",
   },
-  description: "Découvrez les œuvres de Bertrand Kolly, artiste peintre.",
+  description:
+    "Bertrand Kolly, artiste peintre à Lovens (Fribourg) : œuvres à l'acrylique et au pastel, expositions et parcours.",
   openGraph: {
     siteName: "Bertrand Kolly",
     locale: "fr_CH",
     type: "website",
-    images: [{ url: "/images/autoportrait.jpg", width: 1200, height: 630 }],
   },
 };
 
-export default function RootLayout({ children }) {
-  return (
-    <html lang="fr">
-      <body
-        className={` ${gsf.className} antialiased bg-stone-950`}
-      >
-        <Header />
+// Applique le thème mémorisé avant le premier affichage (évite un flash de couleur).
+const themeScript = `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`;
 
+export default async function RootLayout({ children }) {
+  const contact = await getFooter();
+
+  return (
+    <html lang="fr-CH" data-theme="light" suppressHydrationWarning className={`${body.variable} ${display.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        <Header contact={contact} />
         <Providers>
-          <div className="z-10 relative min-h-screen bg-stone-950">
+          <div className="relative z-10 min-h-screen bg-bg">
             <Suspense fallback={null}>
               <ModalProvider>
                 <SmoothScrollProvider>{children}</SmoothScrollProvider>
               </ModalProvider>
             </Suspense>
           </div>
-          <Footer />
+          <Footer contact={contact} />
         </Providers>
       </body>
     </html>

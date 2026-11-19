@@ -153,7 +153,7 @@ export function Providers({ children }) {
           inset: 0,
           zIndex: 9000,
           pointerEvents: "none",
-          background: "#0c0a09",
+          background: "var(--inverse-bg)",
 
           display: "flex",
           flexDirection: "column",
@@ -166,12 +166,9 @@ export function Providers({ children }) {
       >
         <span
           ref={labelRef}
-          className="text-3xl"
+          className="t-h1"
           style={{
-            
-            fontWeight: 300,
-            color: "white",
-            letterSpacing: "0.05em",
+            color: "var(--inverse-ink)",
             opacity: 0,
             transform: "translateY(12px)",
           }}
@@ -179,9 +176,8 @@ export function Providers({ children }) {
         <span
           ref={subtitleRef}
           style={{
-            fontSize: "14px",
-            fontWeight: 300,
-            color: "#a8a29e",
+            fontSize: "12px",
+            color: "var(--inverse-muted)",
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             opacity: 0,

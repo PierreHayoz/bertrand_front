@@ -1,65 +1,67 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence } from "framer-motion";
 import { usePathname, useSearchParams } from "next/navigation";
 import Modal from "@/app/components/Modal";
 
 const ModalContext = createContext(null);
-export function useModal() { return useContext(ModalContext); }
+export function useModal() {
+  return useContext(ModalContext);
+}
 
 export function ModalProvider({ children }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const routeKey = `${pathname}?${searchParams.toString()}`;
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [current, setCurrent] = useState(null);
-  const [instantClose, setInstantClose] = useState(false);
+  // { list, index } : la visionneuse permet de passer d'une œuvre à l'autre de la même liste
+  const [state, setState] = useState(null);
 
-
-  const openModal = useCallback(async (oeuvre) => {
-    setInstantClose(false);
-    setCurrent(oeuvre ?? null);
-    setIsOpen(true);
-
+  const openModal = useCallback((oeuvre, list) => {
+    const items = Array.isArray(list) && list.length ? list : [oeuvre];
+    const index = Math.max(0, items.findIndex((o) => o.id === oeuvre.id));
+    setState({ list: items, index });
   }, []);
 
-  const closeModal = useCallback(() => {
-    setIsOpen(false);
-    setCurrent(null);
+  const closeModal = useCallback(() => setState(null), []);
+
+  const step = useCallback((delta) => {
+    setState((s) => (s ? { ...s, index: (s.index + delta + s.list.length) % s.list.length } : s));
   }, []);
 
-  // ✅ fermeture due à navigation => pas d'animation de sortie
-  useEffect(() => {
-    if (!isOpen) return;
-    setInstantClose(true);
-    // on ferme au prochain tick, après avoir basculé le flag
-    queueMicrotask(() => closeModal());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeKey]);
+  // Fermeture lors d'un changement de page
+  const [openedOn, setOpenedOn] = useState(routeKey);
+  if (openedOn !== routeKey) {
+    setOpenedOn(routeKey);
+    setState(null);
+  }
 
   const value = useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
+  const current = state ? state.list[state.index] : null;
 
   return (
     <ModalContext.Provider value={value}>
       {children}
-
-      <AnimatePresence mode="sync">
-        {isOpen && current && (
+      {/* Portail dans <body> : la visionneuse passe au-dessus de l'en-tête fixe */}
+      {typeof document !== "undefined"
+        ? createPortal(
+      <AnimatePresence>
+        {current ? (
           <Modal
-            key={current.id ?? current.imageUrl ?? "modal"}
-            isOpen={isOpen}
+            key="viewer"
+            oeuvre={current}
+            position={state.list.length > 1 ? `${state.index + 1} / ${state.list.length}` : null}
             onClose={closeModal}
-            instantClose={instantClose}
-            src={current.imageUrlModal}
-            title={current.titre}
-            date={current.date ? new Date(current.date).getFullYear() : null}
-            format={current.format}
-            numero={current.numero}
+            onPrev={state.list.length > 1 ? () => step(-1) : null}
+            onNext={state.list.length > 1 ? () => step(1) : null}
           />
-        )}
-      </AnimatePresence>
+        ) : null}
+      </AnimatePresence>,
+            document.body
+          )
+        : null}
     </ModalContext.Provider>
   );
 }

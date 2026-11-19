@@ -1,104 +1,117 @@
-import Hero from "./components/Hero";
-import ObservationsCardsList from "./components/ObservationsCardsList";
-import Separation from "./components/Separation";
-import StickyCardsList from "./components/StickyCardsList";
-import SectionHeader from "./components/SectionHeader";
+import Image from "next/image";
+import Artwork, { ArtworkGrid } from "./components/Artwork";
+import Reveal from "./components/Reveal";
+import TransitionLink from "./components/TransitionLink";
+import { ArrowLink, CtaBand, Quote, SectionHeading, StatusLabel } from "./components/ui";
 import { getHomepage } from "./lib/homePage";
 import { getExpositions } from "./lib/expositions";
-import ExploreCta from "./components/ExploreCTA";
-import Reveal from "./components/Reveal";
-function toDate(v) {
-  if (!v) return null;
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
+import { getLatestOeuvres } from "./lib/oeuvres";
+import { formatDateRange, pickFeaturedExpo, place } from "./lib/utils";
 
-function pickNextExpo(expos = []) {
-  const now = new Date();
-  const list = (expos ?? [])
-    .map((e) => ({ ...e, start: toDate(e.dateDebut), end: toDate(e.dateFin) }))
-    .filter((e) => e.start);
+// Les œuvres mises en avant sont toujours les plus récentes.
+const RECENT_COUNT = 9;
 
-  // en cours ou à venir
-  return (
-    list
-      .filter((e) => (e.end ? now <= e.end : now <= e.start))
-      .sort((a, b) => a.start - b.start)[0] ?? null
-  );
-}
 export default async function Home() {
-  const homepage = await getHomepage();
-  const expositions = await getExpositions();
-  const nextExpo = pickNextExpo(expositions);
+  const [homepage, expositions, recent] = await Promise.all([
+    getHomepage(),
+    getExpositions(),
+    getLatestOeuvres(RECENT_COUNT),
+  ]);
+
+  const [latest, ...others] = recent;
+  const expo = pickFeaturedExpo(expositions);
 
   return (
-    <main className="bg-stone-950 text-stone-200 pb-10 md:pb-24">
-      <div className="mx-auto max-w-7xl px-8 md:px-16">
-        <section className="pt-32 md:pt-44 pb-14 md:pb-24">
-          <Hero title={homepage.hero.title} subtitle={homepage.hero.subtitle} />
-        </section>
+    <main>
+      {/* En-tête : phrase de l'artiste + dernière œuvre */}
+      <section className="container-site pt-32 md:pt-44 pb-20 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-14 items-end">
+        <Reveal className="md:col-span-7 md:pb-4">
+          <p className="t-label text-muted">Artiste peintre · Fribourg</p>
+          <h1 className="mt-6 t-display text-ink text-balance">{homepage?.hero.title}</h1>
+          {homepage?.hero.subtitle ? (
+            <p className="mt-8 t-lead text-muted max-w-[44ch]">{homepage.hero.subtitle}</p>
+          ) : null}
+          <div className="mt-10 flex flex-wrap gap-x-8 gap-y-3">
+            <ArrowLink href="/oeuvres">Voir toutes les œuvres</ArrowLink>
+            <ArrowLink href="/about">Le parcours</ArrowLink>
+          </div>
+        </Reveal>
 
-        {/* Sticky selection */}
-        <section className="pb-20 md:pb-28">
+        {latest ? (
+          <Reveal className="md:col-span-5" delay={0.15}>
+            <p className="t-label text-muted mb-4">Dernière œuvre</p>
+            <Artwork
+              oeuvre={latest}
+              list={recent}
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="max-w-[34rem] md:ml-auto"
+            />
+          </Reveal>
+        ) : null}
+      </section>
+
+      {/* Œuvres récentes */}
+      {others.length ? (
+        <section className="container-site pb-20 md:pb-32">
           <Reveal>
-            <SectionHeader
-          
-              eyebrow="Sélection"
-              title="À parcourir lentement"
-              description="Une série d’œuvres mises en avant — cliquez pour ouvrir la fiche."
-              align="left"
-            />
-            <div className="mt-10 md:mt-14 border-t border-stone-900/80 pt-10">
-              <StickyCardsList oeuvres={homepage.firstSelection} />
-            </div>
+            <SectionHeading label="Atelier" title="Œuvres récentes">
+              <ArrowLink href="/oeuvres">Toutes les œuvres</ArrowLink>
+            </SectionHeading>
           </Reveal>
-        </section>
-
-        {/* CTA / séparation */}
-        <section className="pb-20 md:pb-28">
-          <Reveal >
-            <Separation separation={homepage.cta} />
-          </Reveal>
-        </section>
-
-        {/* Observations */}
-        <section className=" md:pb-28">
-          <SectionHeader
-            eyebrow="Observations"
-            title="Dernières pièces"
-            description="Triées du plus récent au plus ancien. Une citation apparaît comme interlude."
-            align="right"
-          />
-          <div className="mt-10 md:mt-14">
-            <ObservationsCardsList
-              oeuvres={homepage.secondSelection}
-              citation={homepage.citation}
-            />
+          <div className="mt-12 md:mt-16">
+            <ArtworkGrid oeuvres={others} cols="columns-2 md:columns-4" sizes="(max-width: 768px) 50vw, 25vw" />
           </div>
         </section>
+      ) : null}
 
-        <ExploreCta
-          cards={[
-            {
-              eyebrow: "Agenda",
-              title: "Parcourir mes expositions",
-              description: "De la plus récente à la plus ancienne.",
-              href: "/expositions",
-              label: "Voir l'agenda",
-            },
-            {
-              eyebrow: "À propos",
-              title: "Découvrir la démarche",
-              description: "Contexte, influences, intentions.",
-              href: "/about",
-              label: "Me découvrir",
-            },
-          ]}
-        />
+      <CtaBand cta={homepage?.cta} />
 
+      <Quote text={homepage?.citation.text} auteur={homepage?.citation.auteur} />
 
-
-      </div>
+      {/* Exposition à la une */}
+      {expo ? (
+        <section className="container-site pb-24 md:pb-36">
+          <Reveal>
+            <SectionHeading
+              label={expo.status === "past" ? "Dernière exposition" : "Exposition"}
+              title={null}
+            >
+              <ArrowLink href="/expositions">Toutes les expositions</ArrowLink>
+            </SectionHeading>
+          </Reveal>
+          <Reveal className="mt-10 md:mt-14">
+            <TransitionLink
+              href={`/expositions/${expo.slug}`}
+              label={expo.titre}
+              className="group grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center"
+            >
+              {expo.cover ? (
+                <div className="md:col-span-4 overflow-hidden bg-surface">
+                  <Image
+                    src={expo.cover.src}
+                    width={expo.cover.width}
+                    height={expo.cover.height}
+                    alt={expo.cover.alt}
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="h-auto w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.03]"
+                  />
+                </div>
+              ) : null}
+              <div className="md:col-span-7 md:col-start-6">
+                <StatusLabel status={expo.status} />
+                <h2 className="mt-4 t-h1 text-ink text-balance">{expo.titre}</h2>
+                <p className="mt-6 t-lead text-muted">{formatDateRange(expo.dateDebut, expo.dateFin)}</p>
+                <p className="t-lead text-muted">{place(expo)}</p>
+                <span className="mt-8 inline-flex items-center gap-2 text-ink">
+                  <span className="link-underline group-hover:bg-[length:100%_1px]">Voir l’exposition</span>
+                  <span aria-hidden="true">→</span>
+                </span>
+              </div>
+            </TransitionLink>
+          </Reveal>
+        </section>
+      ) : null}
     </main>
   );
 }

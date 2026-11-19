@@ -1,65 +1,66 @@
-import OeuvresLayout from "../components/OeuvresLayout";
+import { ArtworkGrid } from "../components/Artwork";
+import Reveal from "../components/Reveal";
+import { PageHeader } from "../components/ui";
 import { getOeuvres } from "../lib/oeuvres";
-import { getExpositions } from "../lib/expositions";
-import { Suspense } from "react";
 
-const PAGE_SIZE = 24;
+export const metadata = {
+  title: "Œuvres",
+  description: "Toutes les œuvres de Bertrand Kolly, de la plus récente à la plus ancienne.",
+};
 
-
-export default async function Page({ searchParams }) {
+export default async function OeuvresPage() {
   const oeuvres = (await getOeuvres()) ?? [];
-  const expositions = (await getExpositions()) ?? [];
-  const sp = await searchParams;
 
-  const pageRaw = Array.isArray(sp?.page) ? sp.page[0] : sp?.page;
-  const page = Math.max(1, Number(pageRaw ?? 1) || 1);
-
-  const sorted = oeuvres
-    .slice()
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const total = sorted.length;
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  const start = (page - 1) * PAGE_SIZE;
-  const pageItems = sorted.slice(start, start + PAGE_SIZE);
-
-  // featured seulement sur page 1
-  const latest = page === 1 ? pageItems[0] ?? null : null;
-  const rest = page === 1 ? pageItems.slice(1) : pageItems;
-
-  const nextExpo = pickNextExpo(expositions);
+  // Regroupement par année (les œuvres arrivent déjà triées, plus récentes d'abord)
+  const byYear = [];
+  for (const o of oeuvres) {
+    const year = o.year ?? "Sans date";
+    const last = byYear[byYear.length - 1];
+    if (last?.year === year) last.items.push(o);
+    else byYear.push({ year, items: [o] });
+  }
 
   return (
-  <Suspense fallback={<div className="min-h-screen bg-stone-950" />}>
-      <OeuvresLayout
-        latest={latest}
-        rest={rest}
-        total={total}
-        page={page}
-        totalPages={totalPages}
-        nextExpo={nextExpo}
+    <main className="pb-24 md:pb-36">
+      <PageHeader
+        label="Catalogue"
+        title="Œuvres"
+        intro="Acrylique, pastel à l'huile, sur toile ou sur papier. De la plus récente à la plus ancienne ; cliquez sur une œuvre pour l'agrandir."
+        aside={
+          <div className="space-y-2">
+            <p className="font-serif text-6xl text-ink tabular-nums">{oeuvres.length}</p>
+            <p className="t-label">œuvres</p>
+          </div>
+        }
       />
-    </Suspense>
-  );
-}
 
-function toDate(v) {
-  if (!v) return null;
-  const d = new Date(v);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
+      <nav className="container-site sticky top-16 md:top-20 z-20 bg-bg/90 backdrop-blur-md border-y border-line" aria-label="Années">
+        <ul className="flex gap-6 overflow-x-auto py-3 text-sm">
+          {byYear.map(({ year, items }) => (
+            <li key={year} className="shrink-0">
+              <a href={`#annee-${year}`} className="text-muted hover:text-ink transition-colors">
+                {year} <span className="text-faint tabular-nums">({items.length})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-function pickNextExpo(expos = []) {
-  const now = new Date();
-  const valid = expos
-    .map((e) => ({ ...e, start: toDate(e.dateDebut), end: toDate(e.dateFin) }))
-    .filter((e) => e.start);
+      {byYear.map(({ year, items }) => (
+        <section key={year} id={`annee-${year}`} className="container-site pt-16 md:pt-24 scroll-mt-32">
+          <Reveal className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-10 md:mb-14">
+            <h2 className="md:col-span-3 t-h1 text-ink tabular-nums">{year}</h2>
+            <p className="md:col-span-9 self-end text-muted">
+              {items.length} œuvre{items.length > 1 ? "s" : ""}
+            </p>
+          </Reveal>
+          <ArtworkGrid oeuvres={items} cols="columns-2 md:columns-3 lg:columns-4" sizes="(max-width: 768px) 50vw, 25vw" />
+        </section>
+      ))}
 
-  // en cours ou à venir
-  return (
-    valid
-      .filter((e) => (e.end ? now <= e.end : now <= e.start))
-      .sort((a, b) => a.start - b.start)[0] ?? null
+      {oeuvres.length === 0 ? (
+        <p className="container-site text-muted">Aucune œuvre pour le moment.</p>
+      ) : null}
+    </main>
   );
 }

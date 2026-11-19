@@ -1,334 +1,102 @@
-import { getExpositions } from "../lib/expositions";
-import ExploreCta from "../components/ExploreCTA";
-import { ArrowRight } from "lucide-react";
-import PageHeaderAnimated from "../components/PageHeaderAnimated";
+import Image from "next/image";
 import Reveal from "../components/Reveal";
 import TransitionLink from "../components/TransitionLink";
+import { PageHeader, SectionHeading, StatusLabel } from "../components/ui";
+import { getExpositions } from "../lib/expositions";
+import { formatDateRange, getExpoStatus, place, toDate } from "../lib/utils";
 
-// Helpers dates (évite les surprises)
-function toDate(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-function toPlainText(node) {
-  if (!node) return "";
+export const metadata = {
+  title: "Expositions",
+  description: "Expositions de Bertrand Kolly : en cours, à venir et passées.",
+};
 
-  if (typeof node === "string" || typeof node === "number") return String(node);
-
-  if (Array.isArray(node)) {
-    return node
-      .map(toPlainText)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  if (typeof node === "object") {
-    if ("text" in node) return toPlainText(node.text);
-    if ("children" in node) return toPlainText(node.children);
-    return Object.values(node)
-      .map(toPlainText)
-      .join(" ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  return "";
-}
-
-function startOfDay(d) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function endOfDay(d) {
-  const x = new Date(d);
-  x.setHours(23, 59, 59, 999);
-  return x;
-}
-
-function getStatus(expo, now = new Date()) {
-  const start = toDate(expo.dateDebut);
-  const end = toDate(expo.dateFin);
-
-  if (!start) return { key: "unknown" };
-
-  const n = now;
-  const s = startOfDay(start);
-
-  if (end) {
-    const e = endOfDay(end);
-    if (n < s) return { key: "upcoming" };
-    if (n >= s && n <= e) return { key: "current" };
-    return { key: "past" };
-  }
-
-  // Si pas de dateFin : on considère "en cours" seulement le jour du début
-  const sEnd = endOfDay(start);
-  if (n < s) return { key: "upcoming" };
-  if (n >= s && n <= sEnd) return { key: "current" };
-  return { key: "past" };
-}
-
-function formatDateRange(debut, fin) {
-  const d1 = toDate(debut);
-  if (!d1) return "";
-  const f1 = d1.toLocaleDateString("fr-CH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const d2 = toDate(fin);
-  if (!d2) return f1;
-
-  const f2 = d2.toLocaleDateString("fr-CH", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  return `${f1} — ${f2}`;
-}
-
-export default async function Page() {
-  const expositions = (await getExpositions()) ?? [];
-
-  // Tri : d'abord les plus proches/actuelles, puis passées par date desc
+export default async function ExpositionsPage() {
   const now = new Date();
+  const expositions = ((await getExpositions()) ?? []).map((e) => ({ ...e, status: getExpoStatus(e, now) }));
 
-  const withStatus = expositions
-    .map((e) => ({ expo: e, status: getStatus(e, now) }))
-    .sort((a, b) => {
-      const aStart = toDate(a.expo.dateDebut)?.getTime() ?? 0;
-      const bStart = toDate(b.expo.dateDebut)?.getTime() ?? 0;
-
-      const order = (k) =>
-        k === "current" ? 0 : k === "upcoming" ? 1 : k === "past" ? 2 : 3;
-
-      const oa = order(a.status.key);
-      const ob = order(b.status.key);
-
-      if (oa !== ob) return oa - ob;
-
-      // upcoming: plus proche d'abord
-      if (a.status.key === "upcoming") return aStart - bStart;
-      // current: plus récent d'abord
-      if (a.status.key === "current") return bStart - aStart;
-      // past: plus récent d'abord
-      return bStart - aStart;
-    });
-
-  const currentOrUpcoming = withStatus.filter(
-    (x) => x.status.key === "current" || x.status.key === "upcoming"
-  );
-  const past = withStatus.filter((x) => x.status.key === "past");
+  const live = expositions
+    .filter((e) => e.status === "current" || e.status === "upcoming")
+    .sort((a, b) => toDate(a.dateDebut) - toDate(b.dateDebut));
+  const past = expositions
+    .filter((e) => e.status === "past")
+    .sort((a, b) => toDate(b.dateDebut) - toDate(a.dateDebut));
 
   return (
-    <main className="bg-stone-950 text-stone-200">
-      <div className="mx-auto max-w-7xl px-8 md:px-16 pt-32 md:pt-44 pb-16 md:pb-24">
-        {/* Header */}
-        <PageHeaderAnimated
-          eyebrow="Agenda"
-          title="Expositions"
-          description="Expositions en cours, à venir, et archives."
-        />
+    <main className="pb-24 md:pb-36">
+      <PageHeader
+        label="Agenda"
+        title="Expositions"
+        intro="Où voir les toiles de Bertrand Kolly : expositions en cours, à venir et passées."
+      />
 
-        {/* À venir / En cours */}
+      <section className="container-site">
         <Reveal>
-          <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
-            <div className="flex items-end justify-between gap-6">
-              <div>
-                <div className="text-xs tracking-[0.2em] uppercase text-stone-500">
-                  Sélection
-                </div>
-                <h2 className="mt-2 text-xl md:text-2xl font-light text-stone-200">
-                  En cours & à venir
-                </h2>
-              </div>
-              <div className="hidden md:block text-stone-500 text-sm">
-                {currentOrUpcoming.length} exposition
-                {currentOrUpcoming.length > 1 ? "s" : ""}
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4">
-              {currentOrUpcoming.length ? (
-                currentOrUpcoming.map(({ expo, status }) => (
-                  <ExpoCard key={expo.id} expo={expo} status={status.key} />
-                ))
-              ) : (
-                <div className="rounded-2xl border border-stone-900/80 p-6 text-stone-400">
-                  Aucune exposition annoncée pour le moment.
-                </div>
-              )}
-            </div>
-          </section>
+          <SectionHeading label="Agenda" title="En cours et à venir" />
         </Reveal>
-        {/* Passées */}
-        <Reveal>
-          <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
-            <div className="flex items-end justify-between gap-6">
-              <div>
-                <div className="text-xs tracking-[0.2em] uppercase text-stone-500">
-                  Archive
-                </div>
-                <h2 className="mt-2 text-xl md:text-2xl font-light text-stone-200">
-                  Passées
-                </h2>
-              </div>
-              <div className="hidden md:block text-stone-500 text-sm">
-                {past.length} exposition{past.length > 1 ? "s" : ""}
-              </div>
-            </div>
+        {live.length ? (
+          <ExpoList expos={live} />
+        ) : (
+          <p className="mt-8 mb-4 t-lead text-muted max-w-[52ch]">
+            Aucune exposition annoncée pour le moment.
+          </p>
+        )}
+      </section>
 
-            <div className="mt-6 grid gap-4">
-              {past.length ? (
-                past.map(({ expo, status }) => (
-                  <ExpoCard key={expo.id} expo={expo} status={status.key} />
-                ))
-              ) : (
-                <div className="rounded-2xl border border-stone-900/80 p-6 text-stone-400">
-                  Pas d’archives pour l’instant.
-                </div>
-              )}
-            </div>
-          </section>
-        </Reveal>
-        <ExploreCta
-          cards={[
-            {
-              eyebrow: "Œuvres",
-              title: "Parcourir l’archive",
-              description: "Du plus récent au plus ancien.",
-              href: "/oeuvres",
-              label: "Voir les œuvres",
-            },
-            {
-              eyebrow: "À propos",
-              title: "Découvrir la démarche",
-              description: "Contexte, influences, intentions.",
-              href: "/about",
-              label: "Me découvrir",
-            },
-          ]}
-        />
-
-      </div>
+      {past.length ? (
+        <section className="container-site mt-20 md:mt-32">
+          <Reveal>
+            <SectionHeading label="Archives" title="Expositions passées" />
+          </Reveal>
+          <ExpoList expos={past} />
+        </section>
+      ) : null}
     </main>
   );
 }
 
-function StatusPill({ status }) {
-  const label =
-    status === "current" ? "En cours" : status === "upcoming" ? "À venir" : "Passée";
-
-  const cls =
-    status === "current"
-      ? "border-stone-500 text-stone-200"
-      : status === "upcoming"
-        ? "border-stone-500 text-stone-200"
-        : "border-stone-500 text-stone-500";
-
+function ExpoList({ expos }) {
   return (
-    <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs ${cls}`}>
-      {label}
-    </span>
-  );
-}
-
-function ExpoCard({ expo, status }) {
-  const place = [expo.lieu, expo.ville, expo.pays].filter(Boolean).join(", ");
-  const dates = formatDateRange(expo.dateDebut, expo.dateFin);
-
-  const href = expo.slug ? `/expositions/${expo.slug}` : null;
-  const desc = toPlainText(expo.description);
-
-  const CardContent = (
-    <div className="rounded-2xl border group border-stone-900/80 relative overflow-hidden hover:border-stone-700 transition-colors">
-
-      {/* overlay */}
-      <div className="absolute w-full h-full bg-stone-200 mix-blend-difference  top-full group-hover:top-0 duration-500 z-10"></div>
-
-      {/* content */}
-      <div className="relative p-5 md:p-6 flex items-center justify-between gap-6">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="text-lg md:text-xl font-light text-stone-200 transition-colors duration-300 truncate">
-              {expo.titre}
-            </div>
-
-            <StatusPill status={status} />
-          </div>
-
-          <div className="mt-3 text-sm text-stone-400 ">
-            {dates ? <span>{dates}</span> : null}
-            {place ? <span className="text-stone-600"> · </span> : null}
-            {place ? <span>{place}</span> : null}
-          </div>
-
-          {desc ? (
-            <p className="mt-4 text-stone-400 leading-6 line-clamp-2">
-              {desc}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="shrink-0">
-          {href ? (
-            <div className="flex justify-end">
-              <div
-                className="
-                relative overflow-hidden
-                px-3 py-1
-                border border-stone-600
-                rounded-full
-                flex items-center
-                w-fit
-                transition-all duration-300
-                group-hover:pr-8
-              "
-              >
-                <span>voir en détail</span>
-
-                <ArrowRight
-                  size={14}
-                  className="
-                  absolute right-3
-                  opacity-0
-                  translate-x-[-6px]
-                  transition-all duration-300 ease-out
-                  group-hover:opacity-100
-                  group-hover:translate-x-0
-                "
-                />
-              </div>
-            </div>
-          ) : expo.lien ? (
-            <a
-              href={expo.lien}
-              target="_blank"
-              rel="noreferrer"
-              className="text-sm text-stone-300 hover:text-stone-200 underline underline-offset-4"
+    <ul className="mt-6">
+      {expos.map((expo) => (
+        <li key={expo.id} className="border-b border-line">
+          <Reveal>
+            <TransitionLink
+              href={`/expositions/${expo.slug}`}
+              label={expo.titre}
+              className="group grid grid-cols-[5.5rem_1fr] md:grid-cols-12 gap-5 md:gap-8 py-8 md:py-10 items-center"
             >
-              Infos
-            </a>
-          ) : null}
-        </div>
-      </div>
-    </div>
+              <div className="md:col-span-2 overflow-hidden bg-surface">
+                {expo.cover ? (
+                  <Image
+                    src={expo.cover.src}
+                    width={expo.cover.width}
+                    height={expo.cover.height}
+                    alt={expo.cover.alt}
+                    sizes="(max-width: 768px) 88px, 16vw"
+                    className="h-auto w-full transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className="aspect-[3/4]" />
+                )}
+              </div>
+              <div className="min-w-0 md:col-span-6">
+                <StatusLabel status={expo.status} />
+                <h3 className="mt-2 t-h3 text-ink text-balance">{expo.titre}</h3>
+              </div>
+              <div className="col-start-2 md:col-start-auto md:col-span-3 text-muted text-[0.95rem]">
+                <p>{formatDateRange(expo.dateDebut, expo.dateFin)}</p>
+                <p>{place(expo)}</p>
+              </div>
+              <span
+                aria-hidden="true"
+                className="hidden md:block md:col-span-1 text-right text-2xl text-ink transition-transform duration-300 group-hover:translate-x-1"
+              >
+                →
+              </span>
+            </TransitionLink>
+          </Reveal>
+        </li>
+      ))}
+    </ul>
   );
-
-// Ligne ~230 dans votre ExpoCard
-if (href) {
-  return (
-    <TransitionLink href={href} label={expo.titre}> {/* ← ajouter label */}
-      {CardContent}
-    </TransitionLink>
-  );
-}
-
-  return CardContent;
 }

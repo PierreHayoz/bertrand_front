@@ -1,170 +1,120 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useMemo, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import TransitionLink from "./TransitionLink";
+import { useScrolledPast } from "../lib/useClientState";
+import ThemeToggle from "./ThemeToggle";
 
-export default function Header() {
+const NAV = [
+  { href: "/oeuvres", label: "Œuvres" },
+  { href: "/expositions", label: "Expositions" },
+  { href: "/about", label: "À propos" },
+];
+
+export default function Header({ contact }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [menuPath, setMenuPath] = useState(pathname);
+  const scrolled = useScrolledPast(24);
 
-  const nav = useMemo(
-    () => [
-      { href: "/", label: "Accueil" },
-      { href: "/oeuvres", label: "Œuvres" },
-      { href: "/about", label: "À propos" },
-      { href: "/expositions", label: "Expositions" },
-    ],
-    []
-  );
-
-  const isActive = (href) => {
-    if (href === "/") return pathname === "/";
-    return pathname?.startsWith(href);
-  };
-useEffect(() => {
-  setOpen(false);
-}, [pathname]);
-
-  useEffect(() => {
-  const lenis = globalThis.__lenis;
-
-  if (open) {
-    lenis?.stop?.();
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-  } else {
-    lenis?.start?.();
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.touchAction = "";
+  // Ferme le menu quand la page change
+  if (menuPath !== pathname) {
+    setMenuPath(pathname);
+    setOpen(false);
   }
 
-  return () => {
-    lenis?.start?.();
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.style.touchAction = "";
-  };
-}, [open]);
+  const isActive = (href) => pathname?.startsWith(href);
 
+  useEffect(() => {
+    const lenis = globalThis.__lenis;
+    if (open) {
+      lenis?.stop?.();
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      lenis?.start?.();
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      lenis?.start?.();
+      document.documentElement.style.overflow = "";
+    };
+  }, [open]);
 
   return (
-    <header className="fixed top-0 z-100 w-full bg-stone-950/80 backdrop-blur-sm border-b border-stone-900/70">
-      <div className="mx-auto max-w-7xl px-8 md:px-16 h-16 flex items-center justify-between">
-        {/* Brand */}
-        <TransitionLink
-          href="/"
-          className="group inline-flex items-center gap-3"
-        >
-          <span className="leading-none">
-            <span className="text-lg  text-stone-200">
-              Bertrand Kolly
-            </span>
-          </span>
+    <header
+      className={`fixed top-0 z-100 w-full transition-[background-color,border-color] duration-500 border-b ${
+        scrolled || open ? "bg-bg/90 backdrop-blur-md border-line" : "bg-transparent border-transparent"
+      }`}
+    >
+      <div className="container-site h-16 md:h-20 flex items-center justify-between gap-6">
+        <TransitionLink href="/" className="font-serif text-2xl md:text-[1.75rem] leading-none text-ink">
+          Bertrand Kolly
         </TransitionLink>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-4">
-          {nav.map((item) => {
-            const active = isActive(item.href);
-            return (
-              <TransitionLink
-                key={item.href}
-                href={item.href}
-                className="group relative"
-              >
-                <span
-                  className={`border border-stone-800 relative block px-3 py-1 text-stone-200 text-sm tracking-wide transition-colors overflow-hidden rounded-full`}
-                >
-                  {item.label}
-                  <div className={`w-full h-full group-hover:left-0 top-0 duration-300 ${active ? "left-0" : "-left-full"} absolute bg-stone-200 mix-blend-difference`}></div>
-                </span>
-
-              </TransitionLink>
-            );
-          })}
+        <nav className="hidden md:flex items-center gap-8" aria-label="Navigation principale">
+          {NAV.map((item) => (
+            <TransitionLink
+              key={item.href}
+              href={item.href}
+              aria-current={isActive(item.href) ? "page" : undefined}
+              className={`link-underline text-[0.95rem] transition-colors ${
+                isActive(item.href) ? "text-ink" : "text-muted hover:text-ink"
+              }`}
+            >
+              {item.label}
+            </TransitionLink>
+          ))}
+          <span className="h-4 w-px bg-line" aria-hidden="true" />
+          <ThemeToggle />
         </nav>
 
         <button
-          className="md:hidden inline-flex relative z-1000 items-center gap-2 rounded-full border border-stone-800 px-4 py-2 text-stone-200"
+          className="md:hidden relative z-130 t-label text-ink py-2"
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={open}
         >
-          <span className="text-xs tracking-[0.2em] uppercase text-stone-400">
-            Menu
-          </span>
-          {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          {open ? "Fermer" : "Menu"}
         </button>
       </div>
 
       {open && (
-        <>
+        <div className="md:hidden fixed inset-0 z-120 bg-bg h-dvh flex flex-col">
+          <nav className="flex-1 overflow-y-auto container-site pt-28 pb-8" aria-label="Navigation mobile">
+            {[{ href: "/", label: "Accueil" }, ...NAV].map((item) => {
+              const active = item.href === "/" ? pathname === "/" : isActive(item.href);
+              return (
+                <TransitionLink
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className="flex items-baseline justify-between border-b border-line py-5"
+                >
+                  <span className={`t-h2 ${active ? "text-ink" : "text-muted"}`}>{item.label}</span>
+                  {active ? <span className="t-label text-faint">Ici</span> : null}
+                </TransitionLink>
+              );
+            })}
+          </nav>
 
-          <div className="md:hidden fixed inset-0 z-120 bg-stone-950 h-dvh">
-            <div className="flex h-full min-h-0 flex-col">
-              {/* nav scrollable */}
-              <nav className="flex-1 min-h-0 overflow-y-auto px-8 pt-24 pb-8">
-                {nav.map((navItem) => {
-                  const active = isActive(navItem.href);
-                  return (
-                    <motion.div key={navItem.href}>
-                      <TransitionLink
-                        href={navItem.href}
-                        prefetch
-                        className="block py-4"
-                      >
-                        <div className="flex items-baseline justify-between gap-6">
-                          <span
-                            className={`text-3xl font-light tracking-tight ${active ? "text-stone-100" : "text-stone-200"
-                              }`}
-                          >
-                            {navItem.label}
-                          </span>
-
-                          <span
-                            className={`text-xs tracking-[0.2em] uppercase ${active ? "text-stone-400" : "text-stone-600"
-                              }`}
-                          >
-                            {active ? "actif" : "ouvrir"}
-                          </span>
-                        </div>
-
-                        <div className="mt-4 h-px bg-stone-900/70" />
-                      </TransitionLink>
-                    </motion.div>
-                  );
-                })}
-              </nav>
-
-              {/* footer fixed */}
-              <div className="shrink-0 px-8 pb-10 pt-6 border-t border-stone-900/70">
-                <div className="text-xs tracking-[0.2em] uppercase text-stone-500">
-                  Contact
-                </div>
-
-                <div className="mt-4 grid grid-cols-1 gap-3 text-stone-300">
-                  <a className="text-sm hover:text-stone-100 transition-colors" href="mailto:hello@exemple.com">
-                    hello@exemple.com
-                  </a>
-                  <a className="text-sm hover:text-stone-100 transition-colors" href="https://instagram.com" target="_blank" rel="noreferrer">
-                    Instagram
-                  </a>
-                  <div className="text-sm text-stone-500">
-                    © {new Date().getFullYear()} Bertrand Kolly
-                  </div>
-                </div>
-              </div>
+          <div className="container-site shrink-0 pb-10 pt-6 border-t border-line flex items-end justify-between gap-6">
+            <div className="space-y-1 text-sm text-muted">
+              {contact?.email ? (
+                <a className="block hover:text-ink" href={`mailto:${contact.email}`}>
+                  {contact.email}
+                </a>
+              ) : null}
+              {contact?.telephone ? (
+                <a className="block hover:text-ink" href={`tel:${contact.telephone.replace(/\s/g, "")}`}>
+                  {contact.telephone}
+                </a>
+              ) : null}
             </div>
+            <ThemeToggle />
           </div>
-        </>
+        </div>
       )}
-
-
     </header>
   );
 }

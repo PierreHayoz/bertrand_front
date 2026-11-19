@@ -1,35 +1,31 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { motion, useReducedMotion, useInView } from "framer-motion";
 
-export default function Reveal({ children, className = "", delay = 0, fromY = 40, duration = 1.4 }) {
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useCurtainDone } from "../lib/useClientState";
+
+/**
+ * Apparition douce au défilement, déclenchée une fois (après le rideau de transition).
+ * Le même élément est rendu côté serveur et client (pas de décalage d'hydratation) ;
+ * avec « réduire les animations », le contenu s'affiche immédiatement.
+ */
+export default function Reveal({ children, className = "", delay = 0, y = 24, as = "div" }) {
   const reduce = useReducedMotion();
-  const [curtainDone, setCurtainDone] = useState(false);
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px -10% 0px" });
+  const inView = useInView(ref, { once: true, margin: "0px 0px -8% 0px" });
+  const ready = useCurtainDone();
+  const visible = reduce || (ready && inView);
 
-  useEffect(() => {
-  if (window.__isCurtainDone) { setCurtainDone(true); return; }
-  const handler = () => setCurtainDone(true);
-  window.addEventListener("curtain:done", handler, { once: true });
-  const fallback = setTimeout(() => setCurtainDone(true), 2000);
-  return () => {
-    window.removeEventListener("curtain:done", handler);
-    clearTimeout(fallback);
-  };
-}, []);
-
-  if (reduce) return <div className={className}>{children}</div>;
-
+  const MotionTag = motion[as] ?? motion.div;
   return (
-    <motion.div
+    <MotionTag
       ref={ref}
       className={className}
-      initial={{ opacity: 0, y: fromY }}
-      animate={curtainDone && inView ? { opacity: 1, y: 0 } : { opacity: 0, y: fromY }}
-      transition={{ duration, ease: [0.16, 1, 0.3, 1], delay }}
+      initial={{ opacity: 0, y }}
+      animate={visible ? { opacity: 1, y: 0 } : undefined}
+      transition={reduce ? { duration: 0 } : { duration: 0.8, ease: [0.16, 1, 0.3, 1], delay }}
     >
       {children}
-    </motion.div>
+    </MotionTag>
   );
 }

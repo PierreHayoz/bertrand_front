@@ -13,9 +13,9 @@ export default function SmoothScrollProvider({ children }) {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.5,
+      duration: 1.1,
       smoothWheel: true,
-      smoothTouch: false,
+      anchors: { offset: -130 },
     });
 
     // expose global
