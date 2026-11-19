@@ -117,6 +117,15 @@ function setup() {
     entries.push({ el, tl, delay: delayOf(el), start: "top 94%", wave: true });
   });
 
+  // Coups de pinceau : chaque passage se peint d'un geste, légèrement décalés
+  gsap.utils.toArray("[data-brush]").forEach((el) => {
+    const paths = el.querySelectorAll("path");
+    gsap.set(paths, { strokeDashoffset: 1 });
+    const tl = gsap.timeline({ paused: true });
+    tl.to(paths, { strokeDashoffset: 0, duration: 1.7, ease: "power2.inOut", stagger: 0.12 });
+    entries.push({ el, tl, delay: 0.2, start: "top 85%" });
+  });
+
   return {
     /** Crée les déclencheurs (à la levée du rideau). */
     arm() {
@@ -163,6 +172,19 @@ function setup() {
 }
 
 function armScrollEffects() {
+  // Les coups de pinceau dérivent doucement, à un rythme différent du texte
+  gsap.utils.toArray("[data-brush]").forEach((el) => {
+    gsap.fromTo(
+      el,
+      { yPercent: 12 },
+      {
+        yPercent: -12,
+        ease: "none",
+        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true },
+      }
+    );
+  });
+
   // Parallaxe douce dans le cadre (image légèrement agrandie pour ne jamais montrer de bord)
   gsap.utils.toArray("[data-parallax]").forEach((el) => {
     const target = el.firstElementChild;

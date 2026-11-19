@@ -34,6 +34,7 @@ export default async function OeuvresPage({ searchParams }) {
       <PageHeader
         label="Catalogue"
         title="Œuvres"
+        brush="dab"
         intro="Acrylique, pastel à l'huile, sur toile ou sur papier. De la plus récente à la plus ancienne."
         aside={
           <p className="text-muted">

@@ -1,5 +1,6 @@
 import { ArtworkGrid } from "./components/Artwork";
 import ArtworkStack from "./components/ArtworkStack";
+import Brush from "./components/Brush";
 import { ArrowLink, CtaBand, EXPLORE, ExploreLinks, Quote, SectionHeading } from "./components/ui";
 import { getHomepage } from "./lib/content";
 import { getExpositions, pickFeaturedExpo } from "./lib/expositions";
@@ -22,7 +23,8 @@ export default async function Home() {
 
   return (
     <main>
-      <section className="container-site pt-36 md:pt-48 pb-20 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10 items-end">
+      <section className="container-site relative isolate pt-36 md:pt-48 pb-20 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10 items-end">
+        <Brush variant="swoosh" className="left-[-8%] top-[42%] h-[34%] w-[110%] md:w-[78%]" />
         <div className="md:col-span-8">
           <p className="t-label text-muted" data-reveal="fade">
             Artiste peintre · Fribourg
@@ -60,7 +62,8 @@ export default async function Home() {
       <CtaBand cta={homepage.cta} />
 
       {dernieres.length ? (
-        <section className="container-site pt-24 md:pt-36">
+        <section className="container-site relative isolate pt-24 md:pt-36">
+          <Brush variant="rise" className="right-[-4%] top-[4%] h-[18%] w-[60%] md:w-[34%]" />
           <SectionHeading label="Observations" title="Dernières pièces">
             <ArrowLink href="/oeuvres">Toutes les œuvres</ArrowLink>
           </SectionHeading>

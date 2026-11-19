@@ -1,9 +1,11 @@
+import Brush from "./Brush";
 import TransitionLink from "./TransitionLink";
 
 /** En-tête de page : petit libellé + grand titre + chapeau. */
-export function PageHeader({ label, title, intro, aside }) {
+export function PageHeader({ label, title, intro, aside, brush = "swoosh" }) {
   return (
-    <header className="container-site pt-36 md:pt-48 pb-12 md:pb-20 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+    <header className="container-site relative isolate pt-36 md:pt-48 pb-12 md:pb-20 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+      {brush ? <Brush variant={brush} className="left-[-6%] top-[38%] h-[46%] w-[95%] md:w-[62%]" /> : null}
       <div className="md:col-span-8">
         {label ? (
           <p className="t-label text-muted" data-reveal="fade">
@@ -116,7 +118,8 @@ export function CtaBand({ cta }) {
 export function Quote({ quote, className = "" }) {
   if (!quote?.text) return null;
   return (
-    <figure className={`container-site py-24 md:py-40 ${className}`}>
+    <figure className={`container-site relative isolate py-24 md:py-40 ${className}`}>
+      <Brush variant="loop" className="left-1/2 top-1/2 h-[62%] w-[min(94vw,62rem)] -translate-x-1/2 -translate-y-1/2" />
       <blockquote
         className="font-serif text-[clamp(2rem,4.6vw,4.25rem)] leading-[1.08] tracking-[-0.01em] text-ink max-w-[22ch] mx-auto text-center text-balance"
         data-reveal="lines"

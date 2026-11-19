@@ -22,6 +22,7 @@ export default async function ExpositionsPage() {
       <PageHeader
         label="Agenda"
         title="Expositions"
+        brush="rise"
         intro="Où voir les toiles de Bertrand Kolly : expositions en cours, à venir et passées."
       />
 
