@@ -11,6 +11,9 @@ export const LABELS = {
   "/expositions": { label: "Expositions" },
 };
 
+/** La page est immobile (plus de décalage lié au rideau) : les déclencheurs peuvent être recalés. */
+const settled = () => window.dispatchEvent(new Event("curtain:settled"));
+
 const labelFor = (href) => {
   const path = new URL(href, window.location.href).pathname;
   return LABELS[path] ?? { label: document.title.split("|")[0].trim() };
@@ -47,7 +50,8 @@ export function Providers({ children }) {
       .to(curtain.current, { yPercent: -100, duration: 1.15, ease: "curtain" }, "-=0.2")
       .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.15, ease: "curtain", clearProps: "transform" }, "<")
       .add(() => markCurtain(true), "<0.55")
-      .set(curtain.current, { yPercent: 100 });
+      .set(curtain.current, { yPercent: 100 })
+      .add(settled);
     return () => tl.kill();
   }, []);
 
@@ -86,7 +90,8 @@ export function Providers({ children }) {
           .to(curtain.current, { yPercent: -100, duration: 1.05 }, "-=0.1")
           .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.05, clearProps: "transform" }, "<")
           .add(() => markCurtain(true), "<0.5")
-          .set(curtain.current, { yPercent: 100 });
+          .set(curtain.current, { yPercent: 100 })
+          .add(settled);
         return () => tl.kill();
       }}
     >
