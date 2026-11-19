@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { usePathname, useSearchParams } from "next/navigation";
 import Viewer from "@/app/components/Viewer";
 import { prefersReducedMotion } from "@/app/lib/motion";
+import { lockScroll, unlockScroll } from "@/app/lib/scrollLock";
 
 const ModalContext = createContext(null);
 export function useModal() {
@@ -28,7 +29,7 @@ function preload(src, timeout = 450) {
 function morph(update, getFrom, getTo) {
   if (!document.startViewTransition || prefersReducedMotion()) {
     update();
-    return;
+    return Promise.resolve();
   }
   const from = getFrom();
   if (from) from.style.viewTransitionName = NAME;
@@ -38,7 +39,7 @@ function morph(update, getFrom, getTo) {
     const to = getTo();
     if (to) to.style.viewTransitionName = NAME;
   });
-  transition.finished.finally(() => {
+  return transition.finished.catch(() => {}).finally(() => {
     const to = getTo();
     if (to) to.style.viewTransitionName = "";
   });
@@ -64,34 +65,63 @@ export function ModalProvider({ children }) {
     stateRef.current = state;
   }, [state]);
 
+  // Une seule transition à la fois (double clic, défilement + clic, Échap pendant l'ouverture…)
+  const busy = useRef(false);
+
   const openModal = useCallback(async (oeuvre, list, fromImg) => {
-    const items = Array.isArray(list) && list.length ? list : [oeuvre];
-    const index = Math.max(0, items.findIndex((o) => o.id === oeuvre.id));
-    await preload(oeuvre.image?.srcLarge);
-    morph(() => setState({ list: items, index }), () => fromImg, viewerImg);
+    if (busy.current || stateRef.current) return;
+    busy.current = true;
+    // Verrou immédiat : la page ne glisse plus (inertie comprise) pendant le préchargement
+    // et la transition, donc la vignette reste exactement là où elle a été cliquée.
+    lockScroll();
+    try {
+      const items = Array.isArray(list) && list.length ? list : [oeuvre];
+      const index = Math.max(0, items.findIndex((o) => o.id === oeuvre.id));
+      await preload(oeuvre.image?.srcLarge);
+      await morph(() => setState({ list: items, index }), () => fromImg, viewerImg);
+    } finally {
+      busy.current = false;
+    }
   }, []);
 
-  const closeModal = useCallback(() => {
+  const closeModal = useCallback(async () => {
     const s = stateRef.current;
-    if (!s) return;
-    const id = s.list[s.index]?.id;
-    morph(() => setState(null), viewerImg, () => thumbOf(id));
+    if (!s || busy.current) return;
+    busy.current = true;
+    try {
+      const id = s.list[s.index]?.id;
+      await morph(() => setState(null), viewerImg, () => thumbOf(id));
+    } finally {
+      busy.current = false;
+      unlockScroll(); // libéré seulement une fois l'image revenue à sa place
+    }
   }, []);
 
   const step = useCallback(async (delta) => {
     const s = stateRef.current;
-    if (!s) return;
-    const index = (s.index + delta + s.list.length) % s.list.length;
-    await preload(s.list[index]?.image?.srcLarge);
-    morph(() => setState({ ...s, index }), viewerImg, viewerImg);
+    if (!s || busy.current) return;
+    busy.current = true;
+    try {
+      const index = (s.index + delta + s.list.length) % s.list.length;
+      await preload(s.list[index]?.image?.srcLarge);
+      await morph(() => setState({ ...s, index }), viewerImg, viewerImg);
+    } finally {
+      busy.current = false;
+    }
   }, []);
 
   // Fermeture immédiate lors d'un changement de page
   const [openedOn, setOpenedOn] = useState(routeKey);
   if (openedOn !== routeKey) {
     setOpenedOn(routeKey);
-    setState(null);
+    if (state) setState(null);
   }
+  // …et libération du verrou correspondant
+  const wasOpen = useRef(false);
+  useEffect(() => {
+    if (wasOpen.current && !state && !busy.current) unlockScroll();
+    wasOpen.current = Boolean(state);
+  }, [state, routeKey]);
 
   const value = useMemo(() => ({ openModal, closeModal }), [openModal, closeModal]);
   const many = (state?.list.length ?? 0) > 1;

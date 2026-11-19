@@ -17,13 +17,9 @@ export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
   useLayoutEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (isOpen && !dialog.open) {
-      dialog.showModal();
-      globalThis.__lenis?.stop?.();
-    } else if (!isOpen && dialog.open) {
-      dialog.close();
-      globalThis.__lenis?.start?.();
-    }
+    // le défilement est verrouillé/libéré par ModalContext (autour des transitions)
+    if (isOpen && !dialog.open) dialog.showModal();
+    else if (!isOpen && dialog.open) dialog.close();
   }, [isOpen]);
 
   return (

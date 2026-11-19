@@ -19,7 +19,7 @@ export default function ArtworkStack({ oeuvres }) {
                 <ArtworkCaption oeuvre={o} />
                 <span className="md:hidden t-label text-faint tabular-nums">{pos}</span>
               </div>
-              <div className="md:col-span-6 flex justify-center" data-reveal={i === 0 ? "image" : undefined}>
+              <div className="md:col-span-6 flex justify-center" data-reveal="image">
                 <ArtworkImage
                   oeuvre={o}
                   list={oeuvres}

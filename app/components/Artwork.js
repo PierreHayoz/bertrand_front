@@ -33,7 +33,6 @@ export function ArtworkImage({ oeuvre, list, sizes, priority = false, className 
       className={`group block w-full overflow-hidden bg-surface ${className}`}
       aria-label={`Agrandir « ${oeuvre.titre} »${oeuvre.numero ? `, n° ${oeuvre.numero}` : ""}`}
       data-oeuvre={oeuvre.id}
-      data-cursor="Voir"
     >
       <Image
         src={src}

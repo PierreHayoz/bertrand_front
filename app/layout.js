@@ -8,8 +8,6 @@ import { ModalProvider } from "@/context/ModalContext";
 import SmoothScrollProvider from "./lenis-providers";
 import { Providers } from "./providers";
 import Motion from "./components/Motion";
-import Cursor from "./components/Cursor";
-import { BrushDefs } from "./components/Brush";
 import { getContact } from "./lib/content";
 
 const body = Google_Sans_Flex({
@@ -73,7 +71,6 @@ export default async function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>
       <body>
-        <BrushDefs />
         <a
           href="#contenu"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-200 focus:bg-ink focus:text-bg focus:px-4 focus:py-2"
@@ -93,7 +90,6 @@ export default async function RootLayout({ children }) {
             </Suspense>
           </div>
           <Footer contact={contact} />
-          <Cursor />
         </Providers>
       </body>
     </html>

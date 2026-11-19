@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import TransitionLink from "./TransitionLink";
 import ThemeToggle from "./ThemeToggle";
+import { lockScroll, unlockScroll } from "../lib/scrollLock";
 
 const NAV = [
   { href: "/oeuvres", label: "Œuvres" },
@@ -26,15 +27,12 @@ export default function Header({ contact }) {
 
   useEffect(() => {
     if (!open) return;
-    const lenis = globalThis.__lenis;
-    lenis?.stop?.();
-    document.documentElement.style.overflow = "hidden";
+    lockScroll();
     const onKey = (e) => e.key === "Escape" && setOpen(false);
     window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("keydown", onKey);
-      document.documentElement.style.overflow = "";
-      lenis?.start?.();
+      unlockScroll();
     };
   }, [open]);
 

@@ -1,6 +1,5 @@
 import { ArtworkGrid } from "./components/Artwork";
 import ArtworkStack from "./components/ArtworkStack";
-import Brush from "./components/Brush";
 import { ArrowLink, CtaBand, EXPLORE, ExploreLinks, Quote, SectionHeading } from "./components/ui";
 import { getHomepage } from "./lib/content";
 import { getExpositions, pickFeaturedExpo } from "./lib/expositions";
@@ -23,23 +22,25 @@ export default async function Home() {
 
   return (
     <main>
-      <section className="container-site relative isolate pt-36 md:pt-48 pb-20 md:pb-32 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-10 items-end">
-        <Brush variant="swoosh" className="left-[-8%] top-[42%] h-[34%] w-[110%] md:w-[78%]" />
-        <div className="md:col-span-8">
-          <p className="t-label text-muted" data-reveal="fade">
-            Artiste peintre · Fribourg
-          </p>
-          <h1 className="mt-6 t-display text-ink text-balance" data-reveal="lines" data-delay="0.05">
-            {homepage.hero.title}
-          </h1>
-        </div>
-        <div className="md:col-span-4">
+      {/* En-tête : tient dans la hauteur de l'écran, quelle que soit la longueur du titre */}
+      <section className="container-site flex min-h-svh flex-col justify-end pt-28 md:pt-32 pb-16 md:pb-24">
+        <p className="t-label text-muted" data-reveal="fade">
+          Artiste peintre · Fribourg
+        </p>
+        <h1 className="mt-6 max-w-[24ch] t-display text-ink text-balance" data-reveal="lines" data-delay="0.05">
+          {homepage.hero.title}
+        </h1>
+        <div className="mt-10 md:mt-14 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-6 items-end border-t border-line pt-6">
           {homepage.hero.subtitle ? (
-            <p className="t-lead text-muted" data-reveal="fade" data-delay="0.45">
+            <p className="md:col-span-6 t-lead text-muted" data-reveal="fade" data-delay="0.45">
               {homepage.hero.subtitle}
             </p>
           ) : null}
-          <div className="mt-8 flex flex-wrap gap-x-8 gap-y-3" data-reveal="fade" data-delay="0.6">
+          <div
+            className="md:col-span-5 md:col-start-8 flex flex-wrap gap-x-8 gap-y-3 md:justify-end"
+            data-reveal="fade"
+            data-delay="0.6"
+          >
             <ArrowLink href="/oeuvres">Les œuvres</ArrowLink>
             <ArrowLink href="/about">Le parcours</ArrowLink>
           </div>
@@ -62,8 +63,7 @@ export default async function Home() {
       <CtaBand cta={homepage.cta} />
 
       {dernieres.length ? (
-        <section className="container-site relative isolate pt-24 md:pt-36">
-          <Brush variant="rise" className="right-[-4%] top-[4%] h-[18%] w-[60%] md:w-[34%]" />
+        <section className="container-site pt-24 md:pt-36">
           <SectionHeading label="Observations" title="Dernières pièces">
             <ArrowLink href="/oeuvres">Toutes les œuvres</ArrowLink>
           </SectionHeading>
