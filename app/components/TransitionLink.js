@@ -1,18 +1,19 @@
 "use client";
+
 import { Link } from "next-transition-router";
-import { LABELS } from "../providers";
+import { setNextLabel } from "../lib/motion";
 
-export default function TransitionLink({ href, label, children, ...props }) {
-  const handleClick = () => {
-  const entry = LABELS[href];
-  const text = label ?? entry?.label ?? "";
-  const sub = entry?.subtitle ?? null;
-  window.__setCurtainLabel?.(text);
-  window.__setCurtainSubtitle?.(sub);
-};
-
+/** Lien avec transition de rideau ; `label` remplace le titre affiché sur le rideau. */
+export default function TransitionLink({ href, label, children, onClick, ...props }) {
   return (
-    <Link href={href} onClick={handleClick} {...props}>
+    <Link
+      href={href}
+      onClick={(e) => {
+        if (label) setNextLabel(label);
+        onClick?.(e);
+      }}
+      {...props}
+    >
       {children}
     </Link>
   );

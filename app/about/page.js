@@ -1,127 +1,49 @@
 import Image from "next/image";
-import { getAbout } from "../lib/about";
 import BlocksRenderer from "../components/BlocksRenderer";
-import ExploreCta from "../components/ExploreCTA";
-import ExpoGalleryCarousel from "../components/ExpoGalleryCarousel";
-import Reveal from "../components/Reveal";
-import PageHeaderAnimated from "../components/PageHeaderAnimated";
+import Gallery from "../components/Gallery";
+import { CtaBand, EXPLORE, ExploreLinks, PageHeader, Quote } from "../components/ui";
+import { getAbout } from "../lib/content";
 
+export const metadata = {
+  title: "À propos",
+  description: "Parcours de Bertrand Kolly, artiste peintre né à Fribourg en 1962.",
+};
 
 export default async function AboutPage() {
   const about = await getAbout();
+  if (!about) return null;
+
   return (
-    <main className="bg-stone-950 text-stone-200">
-      <div className="mx-auto max-w-7xl px-8 md:px-16 pt-32 md:pt-44 pb-16 md:pb-24">
-        <PageHeaderAnimated
-          eyebrow="À propos"
-          title={about.hero?.title}
-          description={about.hero?.subtitle}
-        />
-        {about.image?.url ? (
-          <Reveal>
-          <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-start">
-              <div className="md:col-span-6">
-                <div className="relative w-full overflow-hidden rounded-2xl border border-stone-900/80">
-                  <div className="relative w-full aspect-square">
-                    <Image
-                      src={about.image.url}
-                      alt={about.image.alt || "À propos"}
-                      fill
-                      priority={true}
-                      className="object-cover object-center"
-                      sizes="(max-width: 768px) 100vw, 900px"
-                    />
-                  </div>
-                </div>
-              </div>
+    <main>
+      <PageHeader label="À propos" title={about.hero.title} intro={about.hero.subtitle} />
 
-              {/* Bloc “note” à droite (optionnel, mais ça étoffe) */}
-              <div className="md:col-span-4 md:col-start-9 text-stone-400 leading-6">
-                <div className="text-xs tracking-[0.2em] uppercase text-stone-500">
-                  Note
-                </div>
-                <p className="mt-4">
-                  Quelques éléments de contexte sur la démarche, les médiums, et
-                  la manière de constituer la collection.
-                </p>
-
-                <div className="mt-6 text-sm text-stone-500">
-                  {about.updatedAt ? (
-                    <span>Dernière mise à jour : {new Date(about.updatedAt).getFullYear()}</span>
-                  ) : (
-                    <span>Texte éditorial — portfolio</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-          </Reveal>
+      <section className="container-site pb-8 md:pb-16 grid grid-cols-1 md:grid-cols-12 gap-x-8 gap-y-12">
+        {about.image ? (
+          <figure className="md:col-span-5 md:sticky md:top-28 self-start bg-surface" data-reveal="image">
+            <Image
+              src={about.image.srcLarge}
+              width={about.image.width}
+              height={about.image.height}
+              alt={about.image.alt}
+              priority
+              sizes="(max-width: 768px) 100vw, 40vw"
+              className="h-auto w-full"
+            />
+          </figure>
         ) : null}
+        <div className="md:col-span-6 md:col-start-7" data-reveal="fade" data-delay="0.2">
+          <BlocksRenderer blocks={about.contenu} lead />
+        </div>
+      </section>
 
-        {/* Citation en interlude (si présente) */}
-        {(about.citation?.text || about.citation?.auteur) ? (
-          <section className="mt-12 md:mt-16">
-            <div className="rounded-2xl border border-stone-900/80 p-6 md:p-10">
+      <Quote quote={about.quote} />
 
-              <Reveal>
-                <div className="md:px-8 px-4 h-full flex justify-center items-center">
-                  <div className="text-white space-y-2">
-                    <blockquote
-                      className={` text-2xl leading-7`}
-                    >
-                      “{about.citation?.text}”
-                    </blockquote>
-                    <figcaption className="text-end pr-8 text-sm text-stone-300">
-                      — {about.citation?.auteur}
-                    </figcaption>
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </section>
-        ) : null}
+      <Gallery images={about.gallery} label="Atelier" title="Au travail" />
 
-        {/* Contenu */}
-              <Reveal >
+      <CtaBand cta={about.cta} />
 
-        <section className="mt-12 md:mt-16 border-t border-stone-900/80 pt-10 md:pt-14">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
-            {/* marge gauche “vide” pour look magazine */}
-            <div className="hidden md:block md:col-span-2">
-              <div className="text-xs tracking-[0.2em] uppercase text-stone-500">
-                Texte
-              </div>
-            </div>
-
-            {/* contenu principal */}
-            <div className="md:col-span-8">
-              <div className="prose prose-invert prose-stone max-w-none prose-p:leading-7 prose-a:text-stone-200 hover:prose-a:text-white prose-strong:text-stone-200">
-                <BlocksRenderer blocks={about.contenu} />
-              </div>
-            </div>
-          </div>
-          <ExpoGalleryCarousel images={about.gallery} />
-        </section>
-</Reveal>
-        <ExploreCta
-          cards={[
-            {
-              eyebrow: "Œuvres",
-              title: "Parcourir l’archive",
-              description: "Du plus récent au plus ancien.",
-              href: "/oeuvres",
-              label: "Voir les œuvres",
-            },
-            {
-              eyebrow: "Agenda",
-              title: "Parcourir mes expositions",
-              description: "De la plus récente à la plus ancienne.",
-              href: "/expositions",
-              label: "Voir l'agenda",
-            },
-          ]}
-        />
+      <div className="pt-24 md:pt-36">
+        <ExploreLinks links={[EXPLORE.oeuvres, EXPLORE.expositions]} />
       </div>
     </main>
   );

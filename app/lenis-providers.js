@@ -1,58 +1,42 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Lenis from "lenis";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useRouteKey } from "./lib/routeKey";
+import { gsap, prefersReducedMotion, ScrollTrigger } from "./lib/motion";
 
+/**
+ * Défilement doux (Lenis) piloté par l'horloge de GSAP, pour que ScrollTrigger
+ * et le défilement restent parfaitement synchronisés. Désactivé si l'utilisateur
+ * demande moins d'animations.
+ */
 export default function SmoothScrollProvider({ children }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const lenisRef = useRef(null);
-  const rafRef = useRef(null);
+  const routeKey = useRouteKey();
 
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.5,
-      smoothWheel: true,
-      smoothTouch: false,
-    });
+    if (prefersReducedMotion()) return;
 
-    // expose global
+    const lenis = new Lenis({ lerp: 0.085, smoothWheel: true, anchors: { offset: -130 } });
     globalThis.__lenis = lenis;
 
-    lenisRef.current = lenis;
-
-    const raf = (time) => {
-      lenis.raf(time);
-      rafRef.current = requestAnimationFrame(raf);
-    };
-    rafRef.current = requestAnimationFrame(raf);
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (time) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      gsap.ticker.remove(tick);
       lenis.destroy();
-      lenisRef.current = null;
-      // cleanup global
       if (globalThis.__lenis === lenis) globalThis.__lenis = null;
     };
   }, []);
 
-  const routeKey = `${pathname}?${searchParams.toString()}`;
-
+  // Nouvelle page : retour en haut (le rideau couvre l'écran à ce moment-là)
   useEffect(() => {
-    // si Lenis est stoppé (menu/modal), évite le jump
-    const lenis = lenisRef.current;
-    if (!lenis) return;
-
-    requestAnimationFrame(() => {
-      // certains builds exposent lenis.isStopped / lenis._isStopped selon versions
-      const stopped = lenis.isStopped ?? lenis._isStopped;
-      if (!stopped) {
-        lenis.scrollTo(0, { immediate: true });
-      }
-    });
+    const lenis = globalThis.__lenis;
+    if (lenis) lenis.scrollTo(0, { immediate: true, force: true });
+    else window.scrollTo(0, 0);
   }, [routeKey]);
 
-  return <>{children}</>;
+  return children;
 }

@@ -1,45 +1,43 @@
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
+import { populateMedia, strapi, toImage } from "./strapi";
 
-function toAbsoluteUrl(url) {
-  if (!url || !STRAPI_URL) return null;
-  return url.startsWith("http") ? url : `${STRAPI_URL}${url}`;
-}
+// Plus récentes d'abord ; à date égale, numéro le plus élevé d'abord.
+const QUERY = [
+  "sort[0]=date:desc",
+  "sort[1]=numero:desc",
+  "fields[0]=numero",
+  "fields[1]=titre",
+  "fields[2]=format",
+  "fields[3]=date",
+  populateMedia("image"),
+].join("&");
+
+/** Un titre vide ou « Sans titre » n'est pas un vrai titre. */
+const vraiTitre = (t) => {
+  const s = t?.trim();
+  return s && !/^sans[\s-]*titre$/i.test(s) ? s : null;
+};
 
 function mapOeuvre(o) {
+  // Sans vrai titre : « Œuvre nᵒ 345 ». Dès que Bertrand saisit un titre dans Strapi, il remplace celui-ci.
+  const titrePropre = vraiTitre(o.titre);
+  // espace insécable : « nᵒ » et le numéro restent sur la même ligne
+  const titre = titrePropre ?? (o.numero ? `Œuvre nᵒ ${o.numero}` : "Œuvre");
   return {
-    id: o.id,
-    titre: o.Titre ?? null,
-    format: o.Format ?? null,
+    id: o.documentId,
     numero: o.numero ?? null,
-    date: o.date ?? null,
-    // Grille
-    imageUrl: toAbsoluteUrl(o.Image?.formats?.small?.url ?? o.Image?.url),
-    // Modal
-    imageUrlModal: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
-    // Image mise en avant
-    imageUrlFeatured: toAbsoluteUrl(o.Image?.formats?.medium?.url ?? o.Image?.url),
-    imageAlt: o.Image?.alternativeText ?? null,
+    titre,
+    sansTitre: !titrePropre,
+    format: o.format ?? null,
+    year: o.date ? Number(o.date.slice(0, 4)) : null,
+    image: toImage(o.image, `${titre}${titrePropre && o.numero ? `, œuvre nᵒ ${o.numero}` : ""}, Bertrand Kolly`),
   };
 }
 
-export async function getOeuvres() {
-  if (!STRAPI_URL) throw new Error("NEXT_PUBLIC_STRAPI_URL is missing");
-
-  let page = 1;
-  let allOeuvres = [];
-  let total = Infinity;
-
-  while (allOeuvres.length < total) {
-    const res = await fetch(
-`${STRAPI_URL}/api/oeuvres?populate=Image&pagination[page]=${page}&pagination[pageSize]=100&sort=date:desc`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error(`Strapi error ${res.status}`);
-    const json = await res.json();
-    total = json.meta.pagination.total;
-    allOeuvres = [...allOeuvres, ...json.data.map(mapOeuvre)];
-    page++;
-  }
-
-  return allOeuvres;
+/** Tranche d'œuvres (offset/limit) + total, en une seule requête. */
+export async function getOeuvres({ start = 0, limit = 24 } = {}) {
+  const json = await strapi(`/oeuvres?${QUERY}&pagination[start]=${start}&pagination[limit]=${limit}`);
+  return {
+    items: (json?.data ?? []).map(mapOeuvre),
+    total: json?.meta?.pagination?.total ?? 0,
+  };
 }
