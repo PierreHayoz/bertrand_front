@@ -2,13 +2,14 @@
 
 import { useLayoutEffect, useRef } from "react";
 import { ArtworkCaption } from "./Artwork";
+import { viewerSrc } from "../lib/images";
 
 /**
  * Visionneuse plein écran sur <dialog> natif : couche supérieure, focus piégé.
  * Échap, ← et → au clavier. Ouverture/fermeture animées par View Transitions
  * (voir ModalContext) : la vignette se transforme en grande image.
  */
-export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
+export default function Viewer({ oeuvre, placeholder, vente, position, onClose, onPrev, onNext }) {
   const ref = useRef(null);
   const isOpen = Boolean(oeuvre);
 
@@ -48,16 +49,18 @@ export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
 
           <div className="container-site relative flex min-h-0 flex-1 items-center justify-center">
             {oeuvre.image ? (
-              // Image déjà générée par Strapi (format « large ») et préchargée : servie telle quelle
-              // pour que la transition morphe vers une image décodée.
+              // Même URL que le préchargement (lib/images) : la transition morphe vers une image
+              // déjà décodée. <img> simple, sans srcset, pour garantir cette correspondance.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 data-viewer-img
-                src={oeuvre.image.srcLarge}
+                src={viewerSrc(oeuvre.image)}
                 alt={oeuvre.image.alt}
                 width={oeuvre.image.width}
                 height={oeuvre.image.height}
-                className="max-h-full max-w-full w-auto h-auto object-contain"
+                className="max-h-full max-w-full w-auto h-auto object-contain bg-size-[100%_100%]"
+                // connexion lente : la vignette (déjà chargée) reste visible sous la grande image
+                style={placeholder ? { backgroundImage: `url("${placeholder}")` } : undefined}
                 decoding="sync"
               />
             ) : null}
@@ -82,7 +85,22 @@ export default function Viewer({ oeuvre, position, onClose, onPrev, onNext }) {
           </div>
 
           <div className="container-site flex shrink-0 items-end justify-between gap-6 py-6 md:py-8">
-            <ArtworkCaption oeuvre={oeuvre} />
+            <div className="flex flex-col gap-3">
+              <ArtworkCaption oeuvre={oeuvre} />
+              {vente ? (
+                // Site de vente (Strapi « Contact et vente ») : nouvel onglet
+                <a
+                  href={vente.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group inline-flex items-center gap-2 self-start text-sm text-ink"
+                >
+                  <span className="link-underline">{vente.label}</span>
+                  <span aria-hidden="true">↗</span>
+                  <span className="sr-only"> (nouvel onglet)</span>
+                </a>
+              ) : null}
+            </div>
             {onPrev ? (
               <div className="flex gap-6 text-ink">
                 <button type="button" onClick={onPrev} className="t-label py-2 link-underline">

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArtworkCaption, ArtworkGrid, ArtworkImage } from "../components/Artwork";
-import { EXPLORE, ExploreLinks, PageHeader } from "../components/ui";
+import { ArrowLink, EXPLORE, ExploreLinks, PageHeader } from "../components/ui";
+import { getContact } from "../lib/content";
 import { getOeuvres } from "../lib/oeuvres";
 
 export const metadata = {
@@ -22,7 +23,8 @@ export default async function OeuvresPage({ searchParams }) {
   const sp = await searchParams;
   const page = Math.max(1, Number.parseInt(sp?.page, 10) || 1);
 
-  const { items, total } = await getOeuvres(sliceFor(page));
+  const [{ items, total }, contact] = await Promise.all([getOeuvres(sliceFor(page)), getContact()]);
+  const vente = contact?.vente;
   const totalPages = Math.max(1, 1 + Math.ceil(Math.max(0, total - (PAGE_SIZE + 1)) / PAGE_SIZE));
   if (page > totalPages) notFound();
 
@@ -39,6 +41,11 @@ export default async function OeuvresPage({ searchParams }) {
           <p className="text-muted">
             <span className="block font-serif text-6xl text-ink tabular-nums">{total}</span>
             <span className="t-label">œuvres · page {page} / {totalPages}</span>
+            {vente ? (
+              <span className="mt-6 block">
+                <ArrowLink href={vente.url}>{vente.label}</ArrowLink>
+              </span>
+            ) : null}
           </p>
         }
       />
@@ -51,21 +58,30 @@ export default async function OeuvresPage({ searchParams }) {
                 Dernière création
               </p>
               <h2 className="mt-4 t-h1 text-ink" data-reveal="lines">
-                {featured.titre}
+                {featured.sansTitre && featured.numero ? (
+                  // « nᵒ 345 » ne doit jamais être coupé (data-keep : laissé intact par l'animation)
+                  <>
+                    Œuvre{" "}
+                    <span className="whitespace-nowrap" data-keep>
+                      nᵒ {featured.numero}
+                    </span>
+                  </>
+                ) : (
+                  featured.titre
+                )}
               </h2>
               <div data-reveal="fade" data-delay="0.3">
                 <ArtworkCaption oeuvre={{ ...featured, titre: null }} className="mt-6" />
               </div>
             </div>
             <div className="md:col-span-7 md:col-start-6 flex md:justify-end">
-              <div data-reveal="image" data-delay="0.15">
+              <div className="flex w-full md:justify-end" data-reveal="image" data-delay="0.15">
                 <ArtworkImage
                   oeuvre={featured}
                   list={items}
                   priority
                   sizes="(max-width: 768px) 100vw, 55vw"
-                  className="w-auto! max-w-full"
-                  imgClassName="max-h-[78vh] w-auto! max-w-full"
+                  maxHeight="78svh"
                 />
               </div>
             </div>

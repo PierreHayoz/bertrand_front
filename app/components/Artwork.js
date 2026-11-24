@@ -1,14 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useModal } from "@/context/ModalContext";
+import { prefetchOeuvre, useModal } from "@/context/ModalContext";
 
 /** Légende : n°, titre, format · année. */
 export function ArtworkCaption({ oeuvre, className = "" }) {
   const meta = [oeuvre.format, oeuvre.year].filter(Boolean).join(" · ");
   return (
     <div className={`flex items-baseline gap-3 ${className}`}>
-      {oeuvre.numero ? <span className="w-8 shrink-0 text-xs tabular-nums text-faint">{oeuvre.numero}</span> : null}
+      {/* le numéro est déjà dans le titre « Œuvre nᵒ … » quand l'œuvre n'a pas de titre */}
+      {oeuvre.numero && !oeuvre.sansTitre ? (
+        <span className="w-8 shrink-0 text-xs tabular-nums text-faint">{oeuvre.numero}</span>
+      ) : null}
       <div className="min-w-0">
         {oeuvre.titre ? <p className="leading-snug text-ink">{oeuvre.titre}</p> : null}
         {meta ? <p className="text-sm text-muted">{meta}</p> : null}
@@ -21,17 +24,27 @@ export function ArtworkCaption({ oeuvre, className = "" }) {
  * Image d'une œuvre (proportions réelles) qui ouvre la visionneuse.
  * `data-oeuvre` permet à la visionneuse de retrouver la vignette pour l'animation de retour.
  */
-export function ArtworkImage({ oeuvre, list, sizes, priority = false, className = "", imgClassName = "" }) {
+export function ArtworkImage({ oeuvre, list, sizes, priority = false, maxHeight, className = "", imgClassName = "" }) {
   const { openModal } = useModal();
   if (!oeuvre?.image) return null;
-  const { src, width, height, alt } = oeuvre.image;
+  const { width, height, alt } = oeuvre.image;
+  // `maxHeight` (ex. "62svh") : l'œuvre prend toute la largeur disponible sans dépasser cette
+  // hauteur. Taille calculée depuis les proportions de l'œuvre, jamais depuis le fichier
+  // (sur écran haute densité, un fichier source plus petit que prévu rapetissait l'image).
+  const fit = maxHeight ? { width: `min(100%, calc(${maxHeight} * ${width / height}))` } : undefined;
+  const src = maxHeight ? oeuvre.image.srcLarge : oeuvre.image.src;
 
   return (
     <button
       type="button"
+      // l'intention (survol, focus, toucher) lance déjà le chargement de la grande image
+      onPointerEnter={() => prefetchOeuvre(oeuvre)}
+      onPointerDown={() => prefetchOeuvre(oeuvre)}
+      onFocus={() => prefetchOeuvre(oeuvre)}
       onClick={(e) => openModal(oeuvre, list, e.currentTarget.querySelector("img"))}
-      className={`group block w-full overflow-hidden bg-surface ${className}`}
-      aria-label={`Agrandir « ${oeuvre.titre} »${oeuvre.numero ? `, n° ${oeuvre.numero}` : ""}`}
+      className={`group relative block w-full overflow-hidden bg-surface ${className}`}
+      style={fit}
+      aria-label={`Agrandir « ${oeuvre.titre} »${oeuvre.numero && !oeuvre.sansTitre ? `, nᵒ ${oeuvre.numero}` : ""}`}
       data-oeuvre={oeuvre.id}
     >
       <Image

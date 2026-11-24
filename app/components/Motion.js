@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useRouteKey } from "../lib/routeKey";
 import { gsap, prefersReducedMotion, ScrollTrigger, SplitText, whenCurtainDone } from "../lib/motion";
 
 /*
  * Animations de page, déclarées dans le HTML :
- *   data-reveal="lines"   texte dévoilé ligne par ligne derrière un masque
+ *   data-reveal="lines"   texte qui apparaît ligne par ligne (montée légère + fondu)
  *   data-reveal="fade"    fondu + légère montée
  *   data-reveal="image"   cadre qui s'ouvre de bas en haut, image qui se pose (dézoom)
  *   data-parallax         image qui glisse doucement dans son cadre
@@ -18,9 +18,7 @@ import { gsap, prefersReducedMotion, ScrollTrigger, SplitText, whenCurtainDone }
  * déjà visible, ou impossible à atteindre en défilant, est joué.
  */
 export default function Motion() {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const routeKey = `${pathname}?${searchParams.toString()}`;
+  const routeKey = useRouteKey();
 
   useEffect(() => {
     const root = document.documentElement;
@@ -89,13 +87,35 @@ function setup() {
   };
 
   // Lignes masquées
+  // Le découpage reste en place après l'animation (le défaire refaisait la mise en page
+  // du texte : saut visible). autoSplit redécoupe si la largeur ou les polices changent.
   gsap.utils.toArray('[data-reveal="lines"]').forEach((el) => {
-    const split = SplitText.create(el, { type: "lines", mask: "lines" });
-    gsap.set(split.lines, { yPercent: 105 });
+    const entry = { el, tl: null, delay: delayOf(el), start: "top 90%" };
+    // Pas de masque : une ligne masquée est forcément coupée net pendant sa montée.
+    // Chaque ligne monte légèrement en apparaissant en fondu.
+    SplitText.create(el, {
+      type: "lines",
+      autoSplit: true,
+      // le texte reste lu normalement (les lignes ne coupent pas les mots) ;
+      // pas d'aria-label ajouté, interdit sur <p> et redondant
+      aria: "none",
+      // éléments à garder d'un seul tenant (ex. « nᵒ 345 »)
+      ignore: "[data-keep]",
+      onSplit(self) {
+        const tl = gsap
+          .timeline({ paused: true })
+          .fromTo(
+            self.lines,
+            { yPercent: 45, opacity: 0 },
+            { yPercent: 0, opacity: 1, duration: 1.4, ease: "silk", stagger: 0.1 },
+          );
+        if (entry.played) tl.progress(1); // redécoupé après coup : on ne rejoue pas
+        entry.tl?.kill();
+        entry.tl = tl;
+      },
+    });
     gsap.set(el, { autoAlpha: 1 });
-    const tl = gsap.timeline({ paused: true, onComplete: () => split.revert() });
-    tl.to(split.lines, { yPercent: 0, duration: 1.3, ease: "silk", stagger: 0.09 });
-    entries.push({ el, tl, delay: delayOf(el), start: "top 90%" });
+    entries.push(entry);
   });
 
   // Fondus (opacité seulement : l'élément reste accessible au clavier et aux lecteurs d'écran)
@@ -181,19 +201,34 @@ function armScrollEffects() {
   });
 
   // Pile de cartes : la carte recouverte recule et s'estompe, au rythme du défilement
+  // Les positions sont calculées depuis la liste (non collante) et la hauteur des cartes :
+  // mesurer une carte collante donne un résultat qui dépend du défilement au moment
+  // du calcul (cartes déjà estompées, effet trop rapide).
   gsap.utils.toArray("[data-stack]").forEach((list) => {
     const cards = gsap.utils.toArray(":scope > li", list);
-    cards.slice(0, -1).forEach((card, i) => {
+    const listTop = () => list.getBoundingClientRect().top + window.scrollY;
+    // haut « naturel » de la carte k dans la liste (k = cards.length : fin de la liste)
+    const naturalTop = (k) => cards.slice(0, k).reduce((sum, c) => sum + c.offsetHeight, 0);
+    const stickyTop = (el) => parseFloat(getComputedStyle(el).top) || 0;
+
+    cards.forEach((card, i) => {
       const inner = card.firstElementChild;
       const img = card.querySelector("img");
-      const st = () => ({
-        trigger: cards[i + 1],
-        start: "top bottom",
-        end: () => `top ${card.getBoundingClientRect().height * 0.15 + 96}px`,
-        scrub: true,
+      // Recouverte par la carte suivante (la dernière : par le contenu qui suit la pile),
+      // de son entrée en bas de l'écran jusqu'à ce qu'elle soit posée sur la pile.
+      const next = cards[i + 1];
+      const arrival = () => listTop() + naturalTop(i + 1);
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: list,
+          start: () => arrival() - window.innerHeight,
+          end: () => arrival() - (next ? stickyTop(next) : stickyTop(card)),
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
       });
-      gsap.to(inner, { scale: 0.9, ease: "none", scrollTrigger: st() });
-      if (img) gsap.to(img, { opacity: 0.25, ease: "none", scrollTrigger: st() });
+      tl.to(inner, { scale: 0.9, ease: "none" }, 0);
+      if (img) tl.to(img, { opacity: 0.25, ease: "none" }, 0);
     });
   });
 }

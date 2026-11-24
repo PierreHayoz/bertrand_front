@@ -1,5 +1,4 @@
 import "./globals.css";
-import { Suspense } from "react";
 import { Google_Sans_Flex } from "next/font/google";
 import localFont from "next/font/local";
 import Header from "./components/Header";
@@ -9,6 +8,7 @@ import SmoothScrollProvider from "./lenis-providers";
 import { Providers } from "./providers";
 import Motion from "./components/Motion";
 import { getContact } from "./lib/content";
+import { RouteSearch } from "./lib/routeKey";
 
 const body = Google_Sans_Flex({
   subsets: ["latin"],
@@ -36,11 +36,13 @@ export const metadata = {
   },
   description:
     "Bertrand Kolly, artiste peintre à Lovens (Fribourg) : œuvres à l'acrylique et au pastel, expositions et parcours.",
+  // version de test : jamais indexée (voir robots.js)
+  ...(process.env.SITE_NOINDEX === "1" ? { robots: { index: false, follow: false } } : {}),
   openGraph: {
     siteName: "Bertrand Kolly",
     locale: "fr_CH",
     type: "website",
-    images: [{ url: "/images/autoportrait.jpg", width: 1440, height: 1800, alt: "Autoportrait de Bertrand Kolly" }],
+    images: [{ url: "/images/bertrand.jpg", width: 806, height: 1024, alt: "Portrait peint de Bertrand Kolly" }],
   },
 };
 
@@ -53,9 +55,10 @@ export const viewport = {
 
 /*
  * Avant le premier affichage : thème mémorisé (pas de flash) et marqueur JS.
+ * Rideau d'ouverture : une seule fois par visite (onglet) ; ensuite la page s'affiche directement.
  * Filet de sécurité : si les animations ne se mettent pas en place, on affiche tout.
  */
-const bootScript = `(function(){var d=document.documentElement;d.dataset.js="";try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")d.dataset.theme=t}catch(e){}setTimeout(function(){if(!d.dataset.motion)d.dataset.motion="off"},4000)})()`;
+const bootScript = `(function(){var d=document.documentElement;d.dataset.js="";try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")d.dataset.theme=t}catch(e){}try{if(sessionStorage.getItem("intro"))d.dataset.intro="vue";else sessionStorage.setItem("intro","1")}catch(e){}setTimeout(function(){if(!d.dataset.motion)d.dataset.motion="off"},4000)})()`;
 
 export default async function RootLayout({ children }) {
   const contact = await getContact();
@@ -80,14 +83,14 @@ export default async function RootLayout({ children }) {
         <Header contact={contact} />
         <Providers>
           <div id="contenu" className="relative z-10 min-h-screen bg-bg">
-            <Suspense fallback={null}>
-              <ModalProvider>
-                <SmoothScrollProvider>
-                  <Motion />
-                  {children}
-                </SmoothScrollProvider>
-              </ModalProvider>
-            </Suspense>
+            {/* paramètres de l’adresse (?page=…) lus à part : le contenu garde son rendu serveur */}
+            <RouteSearch />
+            <ModalProvider vente={contact?.vente ?? null}>
+              <SmoothScrollProvider>
+                <Motion />
+                {children}
+              </SmoothScrollProvider>
+            </ModalProvider>
           </div>
           <Footer contact={contact} />
         </Providers>

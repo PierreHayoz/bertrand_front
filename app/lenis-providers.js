@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { usePathname, useSearchParams } from "next/navigation";
+import { useRouteKey } from "./lib/routeKey";
 import { gsap, prefersReducedMotion, ScrollTrigger } from "./lib/motion";
 
 /**
@@ -11,9 +11,7 @@ import { gsap, prefersReducedMotion, ScrollTrigger } from "./lib/motion";
  * demande moins d'animations.
  */
 export default function SmoothScrollProvider({ children }) {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const routeKey = `${pathname}?${searchParams.toString()}`;
+  const routeKey = useRouteKey();
 
   useEffect(() => {
     if (prefersReducedMotion()) return;

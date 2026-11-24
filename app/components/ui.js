@@ -1,3 +1,4 @@
+import Image from "next/image";
 import TransitionLink from "./TransitionLink";
 
 /** En-tête de page : petit libellé + grand titre + chapeau. */
@@ -73,7 +74,12 @@ export function ArrowLink({ href, children, className = "" }) {
   if (/^https?:\/\//.test(href)) {
     return (
       <a href={href} target="_blank" rel="noreferrer" className={cls}>
-        {content}
+        <span className="link-underline">{children}</span>
+        {/* ↗ : s'ouvre sur un autre site */}
+        <span aria-hidden="true" className="transition-transform duration-500 ease-out-expo group-hover:-translate-y-0.5 group-hover:translate-x-0.5">
+          ↗
+        </span>
+        <span className="sr-only"> (nouvel onglet)</span>
       </a>
     );
   }
@@ -84,9 +90,50 @@ export function ArrowLink({ href, children, className = "" }) {
   );
 }
 
-/** Bandeau « Appel à l'action » (contenu Strapi). */
+/** Bandeau « Appel à l'action » (contenu Strapi), avec photo facultative. */
 export function CtaBand({ cta }) {
   if (!cta?.title) return null;
+  const { image } = cta;
+  const button = cta.url && cta.label ? (
+    <TransitionLink
+      href={cta.url}
+      className="group inline-flex items-center gap-3 rounded-full bg-accent-ink text-accent px-6 py-3 transition-transform duration-500 ease-out-expo hover:-translate-y-0.5"
+    >
+      {cta.label}
+      <span aria-hidden="true" className="transition-transform duration-500 ease-out-expo group-hover:translate-x-1">
+        →
+      </span>
+    </TransitionLink>
+  ) : null;
+
+  if (image) {
+    return (
+      <section className="bg-accent text-accent-ink">
+        <div className="container-site py-16 md:py-24 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8 items-center">
+          <div className="md:col-span-7">
+            <p className="t-h2 text-balance" data-reveal="lines">
+              {cta.title}
+            </p>
+            <div className="mt-8 md:mt-10" data-reveal="fade" data-delay="0.3">
+              {cta.text ? <p className="mb-6 max-w-[46ch] opacity-80">{cta.text}</p> : null}
+              {button}
+            </div>
+          </div>
+          <figure className="md:col-span-4 md:col-start-9 overflow-hidden" data-reveal="image">
+            <Image
+              src={image.src}
+              width={image.width}
+              height={image.height}
+              alt={image.alt}
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="h-auto w-full max-h-[75svh] object-cover"
+            />
+          </figure>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="bg-accent text-accent-ink">
       <div className="container-site py-16 md:py-24 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
@@ -95,17 +142,7 @@ export function CtaBand({ cta }) {
         </p>
         <div className="md:col-span-4 md:text-right" data-reveal="fade" data-delay="0.3">
           {cta.text ? <p className="mb-4 opacity-80">{cta.text}</p> : null}
-          {cta.url && cta.label ? (
-            <TransitionLink
-              href={cta.url}
-              className="group inline-flex items-center gap-3 rounded-full bg-accent-ink text-accent px-6 py-3 transition-transform duration-500 ease-out-expo hover:-translate-y-0.5"
-            >
-              {cta.label}
-              <span aria-hidden="true" className="transition-transform duration-500 ease-out-expo group-hover:translate-x-1">
-                →
-              </span>
-            </TransitionLink>
-          ) : null}
+          {button}
         </div>
       </div>
     </section>

@@ -26,6 +26,22 @@ export default function Footer({ contact }) {
                 <span aria-hidden="true">→</span>
               </a>
             ) : null}
+            {contact?.vente ? (
+              <div className="mt-12">
+                <p className="t-label text-inverse-muted">Vente</p>
+                <p className="mt-3 text-inverse-ink">{contact.vente.texte}</p>
+                <a
+                  href={contact.vente.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-5 inline-flex items-center gap-3 rounded-full border border-inverse-ink/40 px-6 py-3 text-[0.95rem] transition-colors duration-300 hover:bg-inverse-ink hover:text-inverse"
+                >
+                  {contact.vente.label}
+                  <span aria-hidden="true">↗</span>
+                  <span className="sr-only"> (nouvel onglet)</span>
+                </a>
+              </div>
+            ) : null}
           </div>
 
           <div className="md:col-span-3 md:col-start-8 space-y-6 text-[0.95rem]">

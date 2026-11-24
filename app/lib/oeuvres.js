@@ -11,15 +11,25 @@ const QUERY = [
   populateMedia("image"),
 ].join("&");
 
+/** Un titre vide ou « Sans titre » n'est pas un vrai titre. */
+const vraiTitre = (t) => {
+  const s = t?.trim();
+  return s && !/^sans[\s-]*titre$/i.test(s) ? s : null;
+};
+
 function mapOeuvre(o) {
-  const titre = o.titre ?? "Sans titre";
+  // Sans vrai titre : « Œuvre nᵒ 345 ». Dès que Bertrand saisit un titre dans Strapi, il remplace celui-ci.
+  const titrePropre = vraiTitre(o.titre);
+  // espace insécable : « nᵒ » et le numéro restent sur la même ligne
+  const titre = titrePropre ?? (o.numero ? `Œuvre nᵒ ${o.numero}` : "Œuvre");
   return {
     id: o.documentId,
     numero: o.numero ?? null,
     titre,
+    sansTitre: !titrePropre,
     format: o.format ?? null,
     year: o.date ? Number(o.date.slice(0, 4)) : null,
-    image: toImage(o.image, `${titre}${o.numero ? `, œuvre n° ${o.numero}` : ""}`),
+    image: toImage(o.image, `${titre}${titrePropre && o.numero ? `, œuvre nᵒ ${o.numero}` : ""}, Bertrand Kolly`),
   };
 }
 

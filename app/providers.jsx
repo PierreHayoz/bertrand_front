@@ -14,6 +14,9 @@ export const LABELS = {
 /** La page est immobile (plus de décalage lié au rideau) : les déclencheurs peuvent être recalés. */
 const settled = () => window.dispatchEvent(new Event("curtain:settled"));
 
+/** Intro sautée pour ce chargement de page ? (null tant que ce n'est pas décidé) */
+let introSkipped = null;
+
 const labelFor = (href) => {
   const path = new URL(href, window.location.href).pathname;
   return LABELS[path] ?? { label: document.title.split("|")[0].trim() };
@@ -37,19 +40,27 @@ export function Providers({ children }) {
 
   // Premier chargement
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    const root = document.documentElement;
+    // Rideau déjà vu pendant cette visite (voir bootScript) ou animations réduites : pas d'intro.
+    // Décision prise une seule fois par chargement : l'effet peut être rejoué (mode strict de
+    // React en dev), et rejouer l'intro depuis un rideau déjà baissé le ferait traverser l'écran.
+    introSkipped ??= prefersReducedMotion() || root.dataset.intro === "vue";
+    if (introSkipped) {
       gsap.set(curtain.current, { yPercent: 100 });
+      delete root.dataset.intro; // le rideau reste disponible pour les changements de page
       markCurtain(true);
+      settled();
       return;
     }
     setText(labelFor(window.location.href));
+    gsap.set(curtain.current, { yPercent: 0 }); // l'intro part toujours d'un écran couvert
     const tl = gsap
       .timeline({ defaults: { ease: "silk" } })
-      .fromTo([label.current, subtitle.current], { yPercent: 110 }, { yPercent: 0, duration: 0.9, stagger: 0.07 }, 0.1)
-      .to([label.current, subtitle.current], { yPercent: -110, duration: 0.5, ease: "power3.in", stagger: 0.04 }, "+=0.05")
-      .to(curtain.current, { yPercent: -100, duration: 1.15, ease: "curtain" }, "-=0.2")
-      .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.15, ease: "curtain", clearProps: "transform" }, "<")
-      .add(() => markCurtain(true), "<0.55")
+      .fromTo([label.current, subtitle.current], { yPercent: 170 }, { yPercent: 0, duration: 0.75, stagger: 0.06 }, 0.05)
+      .to([label.current, subtitle.current], { yPercent: -170, duration: 0.45, ease: "power3.in", stagger: 0.04 })
+      .to(curtain.current, { yPercent: -100, duration: 1, ease: "curtain" }, "-=0.2")
+      .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1, ease: "curtain", clearProps: "transform" }, "<")
+      .add(() => markCurtain(true), "<0.35")
       .set(curtain.current, { yPercent: 100 })
       .add(settled);
     return () => tl.kill();
@@ -71,7 +82,7 @@ export function Providers({ children }) {
           .add(() => setText(takeNextLabel(labelFor(to))), 0.3)
           .fromTo(
             [label.current, subtitle.current],
-            { yPercent: 110 },
+            { yPercent: 170 },
             { yPercent: 0, duration: 0.8, ease: "silk", stagger: 0.06 },
             0.55
           );
@@ -86,7 +97,7 @@ export function Providers({ children }) {
         }
         const tl = gsap
           .timeline({ defaults: { ease: "curtain" }, onComplete: next })
-          .to([label.current, subtitle.current], { yPercent: -110, duration: 0.5, ease: "power3.in", stagger: 0.04 })
+          .to([label.current, subtitle.current], { yPercent: -170, duration: 0.5, ease: "power3.in", stagger: 0.04 })
           .to(curtain.current, { yPercent: -100, duration: 1.05 }, "-=0.1")
           .fromTo("#contenu", { y: "18vh" }, { y: 0, duration: 1.05, clearProps: "transform" }, "<")
           .add(() => markCurtain(true), "<0.5")
@@ -100,11 +111,13 @@ export function Providers({ children }) {
         aria-hidden="true"
         className="curtain fixed inset-0 z-9000 pointer-events-none bg-inverse text-inverse-ink flex flex-col items-center justify-center gap-3 px-8 text-center"
       >
-        <span className="block overflow-hidden pb-[0.12em]">
-          <span ref={label} className="block t-h1" />
+        {/* Caches plus hauts que l'interligne (marges négatives pour compenser) :
+            ni les accents ni les jambages ne sont coupés une fois le texte en place */}
+        <span className="block t-h1 overflow-hidden py-[0.3em] -my-[0.3em]">
+          <span ref={label} className="block" />
         </span>
-        <span className="block overflow-hidden">
-          <span ref={subtitle} className="block t-label text-inverse-muted" />
+        <span className="block t-label overflow-hidden py-[0.4em] -my-[0.4em]">
+          <span ref={subtitle} className="block text-inverse-muted" />
         </span>
       </div>
       {children}
