@@ -57,7 +57,8 @@ export default async function OeuvresPage({ searchParams }) {
               <p className="t-label text-muted" data-reveal="fade">
                 Dernière création
               </p>
-              <h2 className="mt-4 t-h1 text-ink" data-reveal="lines">
+              {/* t-h1 réduit de 30 % (2,5–5 rem → 1,75–3,5 rem) */}
+              <h2 className="mt-4 t-h1 text-[clamp(1.75rem,3.85vw,3.5rem)]! text-ink" data-reveal="lines">
                 {featured.sansTitre && featured.numero ? (
                   // « nᵒ 345 » ne doit jamais être coupé (data-keep : laissé intact par l'animation)
                   <>
