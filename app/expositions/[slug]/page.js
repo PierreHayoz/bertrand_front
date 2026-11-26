@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import BlocksRenderer from "../../components/BlocksRenderer";
 import Gallery from "../../components/Gallery";
 import TransitionLink from "../../components/TransitionLink";
+import VideoGallery from "../../components/VideoGallery";
 import { ArrowLink, EXPLORE, ExploreLinks, StatusLabel } from "../../components/ui";
 import { getExpositionBySlug, getExpositions } from "../../lib/expositions";
 import { formatDateRange, place, toPlainText } from "../../lib/utils";
@@ -79,6 +80,8 @@ export default async function ExpositionPage({ params }) {
           {expo.lien ? <ArrowLink href={expo.lien} className="mt-10">Plus d’informations</ArrowLink> : null}
         </div>
       </article>
+
+      <VideoGallery videos={expo.videos} />
 
       <Gallery images={expo.gallery} label="Exposition" title="Images" />
 

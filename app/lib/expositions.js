@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { populateMedia, strapi, toImage } from "./strapi";
+import { populateMedia, populateVideos, strapi, toImage, toVideo } from "./strapi";
 import { getExpoStatus, toDate } from "./utils";
 
 function mapExposition(e) {
@@ -15,6 +15,7 @@ function mapExposition(e) {
     lien: e.lien ?? null,
     cover: toImage(e.couverture, `Affiche : ${titre}`),
     gallery: (e.galerie ?? []).map((m) => toImage(m, titre)).filter(Boolean),
+    videos: (e.videos ?? []).map((m) => toVideo(m, `Vidéo : ${titre}`)).filter(Boolean),
     description: e.description ?? [],
     status: getExpoStatus(e),
   };
@@ -27,7 +28,7 @@ export const getExpositions = cache(async () => {
 
 export const getExpositionBySlug = cache(async (slug) => {
   const json = await strapi(
-    `/expositions?filters[slug][$eq]=${encodeURIComponent(slug)}&${populateMedia("couverture")}&${populateMedia("galerie")}`
+    `/expositions?filters[slug][$eq]=${encodeURIComponent(slug)}&${populateMedia("couverture")}&${populateMedia("galerie")}&${populateVideos("videos")}`
   );
   const e = json?.data?.[0];
   return e ? mapExposition(e) : null;
