@@ -36,6 +36,24 @@ export function populateMedia(name) {
   return MEDIA_FIELDS.map((f) => `populate[${name}]${f}`).join("&");
 }
 
+/** Champs utiles d'une vidéo (Strapi ne fournit pas toujours ses dimensions). */
+export function populateVideos(name) {
+  return ["url", "mime", "width", "height", "alternativeText", "caption"]
+    .map((f, i) => `populate[${name}][fields][${i}]=${f}`)
+    .join("&");
+}
+
+/** Média vidéo Strapi -> source lisible par <video>. Proportions inconnues : portrait par défaut. */
+export function toVideo(media, fallbackLabel = "") {
+  if (!media?.url) return null;
+  return {
+    src: absolute(media.url),
+    mime: media.mime || "video/mp4",
+    ratio: media.width && media.height ? media.width / media.height : 9 / 16,
+    label: media.alternativeText || media.caption || fallbackLabel,
+  };
+}
+
 /**
  * Média Strapi -> image pour next/image, proportions réelles conservées.
  * `src` sert aux vignettes, `srcLarge` à la visionneuse et aux grands visuels.
